@@ -61,11 +61,18 @@ export default function NumbersPanel({ numbers, qrMap, onRefresh, setNumbers }: 
   const handleConnect = async (id: string) => {
     setLoad(id, true);
     try {
+      console.log(`[Connect] Iniciando conexão para número: ${id}`);
       await api.connectNumber(id);
+      console.log(`[Connect] Sucesso para número: ${id}`);
     } catch (e: any) {
-      console.error('Connect error:', e);
-      const message = e.response?.data?.message || e.message || 'Erro desconhecido';
-      alert('Erro ao conectar: ' + message);
+      console.error('[Connect] Erro completo:', {
+        status: e.response?.status,
+        statusText: e.response?.statusText,
+        data: e.response?.data,
+        message: e.message,
+      });
+      const message = e.response?.data?.message || e.response?.data?.error || e.message || 'Erro desconhecido';
+      alert(`Erro ao conectar: ${message}`);
     } finally {
       setLoad(id, false);
     }
@@ -74,9 +81,18 @@ export default function NumbersPanel({ numbers, qrMap, onRefresh, setNumbers }: 
   const handleDisconnect = async (id: string) => {
     setLoad(id, true);
     try {
+      console.log(`[Disconnect] Iniciando desconexão para número: ${id}`);
       await api.disconnectNumber(id);
+      console.log(`[Disconnect] Sucesso para número: ${id}`);
     } catch (e: any) {
-      alert('Erro: ' + e.message);
+      console.error('[Disconnect] Erro completo:', {
+        status: e.response?.status,
+        statusText: e.response?.statusText,
+        data: e.response?.data,
+        message: e.message,
+      });
+      const message = e.response?.data?.message || e.response?.data?.error || e.message || 'Erro desconhecido';
+      alert(`Erro ao desconectar: ${message}`);
     } finally {
       setLoad(id, false);
     }
