@@ -12,7 +12,7 @@ export default defineConfig({
         changeOrigin: true,
       },
       '/socket.io': {
-        target: 'https://api-esquenta-zap-production.up.railway.app/socket.io',
+        target: 'https://api-esquenta-zap-production.up.railway.app/api',
         ws: true,
         changeOrigin: true,
       },
