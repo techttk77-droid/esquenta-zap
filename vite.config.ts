@@ -8,11 +8,11 @@ export default defineConfig({
     proxy: {
       '/api': {
         // forward API requests to the real backend service
-        target: 'https://api-esquenta-zap-production.up.railway.app',
+        target: 'https://api-esquenta-zap-production.up.railway.app/api',
         changeOrigin: true,
       },
       '/socket.io': {
-        target: 'https://api-esquenta-zap-production.up.railway.app',
+        target: 'https://api-esquenta-zap-production.up.railway.app/api',
         ws: true,
         changeOrigin: true,
       },
