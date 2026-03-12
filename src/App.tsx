@@ -43,7 +43,7 @@ type Tab = 'numbers' | 'groups' | 'scheduler' | 'media' | 'logs' | 'settings';
 // when running in development the vite proxy will rewrite "/socket.io" to the
 // real backend, but the actual service lives on Railway. Use a full URL here
 // so the socket client can connect even if the app runs standalone.
-const SOCKET_URL = 'https://api-esquenta-zap-production.up.railway.app/api';
+const SOCKET_URL = 'https://api-esquenta-zap-production.up.railway.app/socket.io';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>('numbers');
@@ -95,7 +95,7 @@ export default function App() {
   }, []);
 
   const refreshNumbers = useCallback(() => {
-    fetch('https://api-esquenta-zap-production.up.railway.app/numbers')
+    fetch('https://api-esquenta-zap-production.up.railway.app/api/numbers')
       .then((r) => r.json())
       .then((data) => setNumbers(data))
       .catch(() => {});
