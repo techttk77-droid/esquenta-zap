@@ -49,7 +49,7 @@ export default function App() {
   const [connected, setConnected] = useState(false);
   const [numbers, setNumbers] = useState<WNumber[]>([]);
   const [qrMap, setQrMap] = useState<Record<string, string>>({});
-  const [logs, setLogs] = useState<ConversationLog[]>([]);
+  const [logs, setLogs] = useState<ConversationLog[]>([]); 
 
   // Socket.IO setup
   useEffect(() => {
