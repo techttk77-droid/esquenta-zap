@@ -1,0 +1,24 @@
+.header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
+.title { font-size: 22px; font-weight: 700; color: #e6edf3; }
+.subtitle { font-size: 13px; color: #8b949e; margin-top: 4px; }
+.tabs { display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 1px solid #30363d; padding-bottom: 0; }
+.tab { background: none; border: none; color: #8b949e; font-size: 14px; padding: 10px 16px; border-bottom: 2px solid transparent; margin-bottom: -1px; font-weight: 500; }
+.tab:hover { color: #e6edf3; }
+.tabActive { color: #25d366; border-bottom-color: #25d366; font-weight: 600; }
+.uploadZone { border: 2px dashed #30363d; border-radius: 10px; padding: 32px; text-align: center; cursor: pointer; margin-bottom: 20px; transition: border-color 0.15s; }
+.uploadZone:hover { border-color: #25d366; }
+.uploadIcon { color: #8b949e; margin: 0 auto 10px; display: block; }
+.uploadText { color: #8b949e; font-size: 14px; }
+.empty { text-align: center; padding: 40px; color: #8b949e; }
+.empty span { font-size: 40px; display: block; margin-bottom: 10px; }
+.empty p { font-size: 14px; }
+.mediaGrid { display: flex; flex-direction: column; gap: 10px; }
+.mediaCard { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 14px 16px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.mediaIcon { font-size: 24px; }
+.mediaInfo { flex: 1; min-width: 120px; }
+.mediaName { font-size: 14px; font-weight: 500; color: #e6edf3; }
+.mediaDate { font-size: 12px; color: #8b949e; margin-top: 2px; }
+.audioPlayer { height: 36px; flex: 1; min-width: 200px; }
+.stickerPreview { width: 60px; height: 60px; object-fit: contain; }
+.btnDelete { display: flex; align-items: center; background: #21262d; color: #8b949e; border: 1px solid #30363d; border-radius: 6px; padding: 6px 8px; margin-left: auto; }
+.btnDelete:hover { color: #f85149; border-color: #f85149; background: #2d1b1b; }

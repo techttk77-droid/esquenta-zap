@@ -1,0 +1,101 @@
+.app {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 220px;
+  min-width: 220px;
+  background: #161b22;
+  border-right: 1px solid #30363d;
+  display: flex;
+  flex-direction: column;
+  padding: 16px 0;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 20px 20px 20px;
+  border-bottom: 1px solid #30363d;
+}
+
+.logoIcon {
+  font-size: 24px;
+}
+
+.logoText {
+  font-size: 18px;
+  font-weight: 700;
+  color: #25d366;
+}
+
+.nav {
+  flex: 1;
+  padding: 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  background: none;
+  border: none;
+  color: #8b949e;
+  font-size: 14px;
+  text-align: left;
+  border-radius: 0;
+  transition: all 0.15s;
+  width: 100%;
+}
+
+.navItem:hover {
+  background: #21262d;
+  color: #e6edf3;
+}
+
+.navItemActive {
+  background: #1f2937;
+  color: #25d366;
+  font-weight: 600;
+  border-right: 3px solid #25d366;
+}
+
+.sidebarFooter {
+  padding: 16px 20px;
+  border-top: 1px solid #30363d;
+  font-size: 12px;
+}
+
+.connIndicatorOn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #25d366;
+}
+
+.connIndicatorOff {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #f85149;
+}
+
+/* Main */
+.main {
+  flex: 1;
+  overflow-y: auto;
+  background: #0d1117;
+}
+
+.content {
+  padding: 28px;
+  max-width: 1200px;
+}

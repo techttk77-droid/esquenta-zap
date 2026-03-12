@@ -1,0 +1,16 @@
+.header { margin-bottom: 24px; }
+.title { font-size: 22px; font-weight: 700; color: #e6edf3; }
+.subtitle { font-size: 13px; color: #8b949e; margin-top: 4px; }
+.empty { text-align: center; padding: 60px 20px; color: #8b949e; }
+.empty span { font-size: 48px; display: block; margin-bottom: 12px; }
+.empty p { font-size: 14px; line-height: 1.8; }
+.logList { display: flex; flex-direction: column; gap: 8px; }
+.logItem { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 12px 16px; display: flex; align-items: flex-start; gap: 12px; }
+.logType { font-size: 18px; min-width: 24px; }
+.logContent { flex: 1; }
+.logRoute { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.fromName { font-size: 13px; font-weight: 600; color: #25d366; }
+.arrow { color: #8b949e; font-size: 12px; }
+.toName { font-size: 13px; font-weight: 600; color: #539bf5; }
+.logMessage { font-size: 13px; color: #e6edf3; }
+.logTime { font-size: 11px; color: #8b949e; white-space: nowrap; }

@@ -1,0 +1,36 @@
+.header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
+.title { font-size: 22px; font-weight: 700; color: #e6edf3; }
+.subtitle { font-size: 13px; color: #8b949e; margin-top: 4px; }
+.btnPrimary { display: flex; align-items: center; gap: 6px; background: #25d366; color: #0d1117; border: none; border-radius: 6px; padding: 8px 16px; font-size: 13px; font-weight: 600; white-space: nowrap; }
+.btnPrimary:hover { opacity: 0.85; }
+.btnSecondary { display: flex; align-items: center; gap: 6px; background: #21262d; color: #e6edf3; border: 1px solid #30363d; border-radius: 6px; padding: 8px 16px; font-size: 13px; }
+.btnSecondary:hover { background: #30363d; }
+.addForm { background: #161b22; border: 1px solid #30363d; border-radius: 10px; padding: 20px; margin-bottom: 24px; display: flex; flex-direction: column; gap: 14px; }
+.addForm h3 { font-size: 15px; color: #e6edf3; }
+.formRow { display: flex; gap: 16px; flex-wrap: wrap; }
+.formGroup { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 200px; }
+.formGroup label { font-size: 12px; color: #8b949e; font-weight: 500; }
+.input, .select { background: #0d1117; border: 1px solid #30363d; border-radius: 6px; color: #e6edf3; padding: 8px 12px; font-size: 14px; outline: none; width: 100%; }
+.input:focus, .select:focus { border-color: #25d366; }
+.formActions { display: flex; justify-content: flex-end; gap: 8px; }
+.empty { text-align: center; padding: 60px 20px; color: #8b949e; }
+.empty span { font-size: 48px; display: block; margin-bottom: 12px; }
+.empty p { font-size: 14px; line-height: 1.8; }
+.taskList { display: flex; flex-direction: column; gap: 12px; }
+.taskCard { background: #161b22; border: 1px solid #30363d; border-radius: 10px; padding: 16px; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+.taskDisabled { opacity: 0.5; }
+.taskLeft { display: flex; flex-direction: column; gap: 4px; }
+.taskType { font-size: 12px; color: #8b949e; }
+.taskName { font-size: 15px; font-weight: 600; color: #e6edf3; }
+.taskCron { font-size: 12px; color: #539bf5; font-family: monospace; }
+.taskLastRun { font-size: 11px; color: #8b949e; }
+.taskActions { display: flex; gap: 8px; flex-wrap: wrap; }
+.btnTrigger { display: flex; align-items: center; gap: 5px; background: #1c2432; color: #60a5fa; border: 1px solid #60a5fa; border-radius: 6px; padding: 6px 12px; font-size: 12px; font-weight: 600; }
+.btnTrigger:hover:not(:disabled) { opacity: 0.8; }
+.btnTrigger:disabled { opacity: 0.5; cursor: not-allowed; }
+.btnPause { display: flex; align-items: center; gap: 5px; background: #2d2416; color: #f0a500; border: 1px solid #f0a500; border-radius: 6px; padding: 6px 12px; font-size: 12px; font-weight: 600; }
+.btnPause:hover { opacity: 0.8; }
+.btnEnable { display: flex; align-items: center; gap: 5px; background: #0f4c25; color: #25d366; border: 1px solid #25d366; border-radius: 6px; padding: 6px 12px; font-size: 12px; font-weight: 600; }
+.btnEnable:hover { opacity: 0.8; }
+.btnDelete { display: flex; align-items: center; background: #21262d; color: #8b949e; border: 1px solid #30363d; border-radius: 6px; padding: 6px 8px; }
+.btnDelete:hover { color: #f85149; border-color: #f85149; background: #2d1b1b; }

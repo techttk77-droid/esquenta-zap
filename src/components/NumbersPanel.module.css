@@ -1,0 +1,420 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #e6edf3;
+}
+
+.subtitle {
+  font-size: 13px;
+  color: #8b949e;
+  margin-top: 4px;
+}
+
+.headerActions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.infoBanner {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  color: #8b949e;
+  line-height: 1.5;
+}
+
+.infoBanner strong {
+  color: #e6edf3;
+}
+
+/* Form */
+.addForm {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.addForm h3 {
+  font-size: 15px;
+  margin-bottom: 16px;
+  color: #e6edf3;
+}
+
+.formRow {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 200px;
+}
+
+.formGroup label {
+  font-size: 12px;
+  color: #8b949e;
+  font-weight: 500;
+}
+
+.input,
+.select {
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  color: #e6edf3;
+  padding: 8px 12px;
+  font-size: 14px;
+  outline: none;
+  width: 100%;
+}
+
+.input:focus,
+.select:focus {
+  border-color: #25d366;
+}
+
+.textarea {
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  color: #e6edf3;
+  padding: 8px 12px;
+  font-size: 14px;
+  outline: none;
+  width: 100%;
+  resize: vertical;
+}
+
+.textarea:focus {
+  border-color: #25d366;
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+/* Buttons */
+.btnPrimary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #25d366;
+  color: #0d1117;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: opacity 0.15s;
+}
+
+.btnPrimary:hover {
+  opacity: 0.85;
+}
+
+.btnSecondary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #21262d;
+  color: #e6edf3;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: background 0.15s;
+}
+
+.btnSecondary:hover {
+  background: #30363d;
+}
+
+/* Empty */
+.empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: #8b949e;
+}
+
+.empty span {
+  font-size: 48px;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.empty p {
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+/* Grid */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+/* Card */
+.card {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+
+.card:hover {
+  border-color: #444c56;
+}
+
+.cardStatusBar {
+  height: 3px;
+}
+
+.cardContent {
+  padding: 16px;
+}
+
+.cardTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  gap: 10px;
+}
+
+.cardName {
+  font-size: 15px;
+  font-weight: 600;
+  color: #e6edf3;
+}
+
+.cardPhone {
+  font-size: 12px;
+  color: #8b949e;
+  margin-top: 2px;
+}
+
+.statusBadge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.statusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+/* Engine */
+.engineRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.engineBadge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.engineWwjs {
+  background: #1f2937;
+  color: #60a5fa;
+  border: 1px solid #1d4ed8;
+}
+
+.engineBaileys {
+  background: #1a1f2e;
+  color: #a78bfa;
+  border: 1px solid #6d28d9;
+}
+
+.switchEngineBtn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: 1px solid #30363d;
+  color: #8b949e;
+  font-size: 11px;
+  border-radius: 4px;
+  padding: 3px 7px;
+}
+
+.switchEngineBtn:hover {
+  border-color: #8b949e;
+  color: #e6edf3;
+}
+
+/* QR */
+.qrSection {
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.qrLabel {
+  font-size: 12px;
+  color: #8b949e;
+  margin-bottom: 10px;
+}
+
+.qrImage {
+  width: 200px;
+  height: 200px;
+  border-radius: 6px;
+  background: #fff;
+}
+
+/* Card actions */
+.cardActions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btnConnect {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: #0f4c25;
+  color: #25d366;
+  border: 1px solid #25d366;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  transition: opacity 0.15s;
+}
+
+.btnConnect:hover:not(:disabled) {
+  opacity: 0.8;
+}
+
+.btnConnect:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btnDisconnect {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: #2d1b1b;
+  color: #f85149;
+  border: 1px solid #f85149;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  transition: opacity 0.15s;
+}
+
+.btnDisconnect:hover:not(:disabled) {
+  opacity: 0.8;
+}
+
+.btnDisconnect:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btnTest {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: #1c2432;
+  color: #60a5fa;
+  border: 1px solid #60a5fa;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  transition: opacity 0.15s;
+}
+
+.btnTest:hover {
+  opacity: 0.8;
+}
+
+.btnDelete {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #21262d;
+  color: #8b949e;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  padding: 6px 8px;
+  margin-left: auto;
+  transition: all 0.15s;
+}
+
+.btnDelete:hover {
+  background: #2d1b1b;
+  color: #f85149;
+  border-color: #f85149;
+}
+
+/* Modal */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modalBox {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 12px;
+  padding: 24px;
+  width: 440px;
+  max-width: 90vw;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modalBox h3 {
+  font-size: 16px;
+  color: #e6edf3;
+}
