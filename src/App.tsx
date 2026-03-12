@@ -40,7 +40,10 @@ export interface ConversationLog {
 
 type Tab = 'numbers' | 'groups' | 'scheduler' | 'media' | 'logs' | 'settings';
 
-const SOCKET_URL = 'http://localhost:3001';
+// when running in development the vite proxy will rewrite "/socket.io" to the
+// real backend, but the actual service lives on Railway. Use a full URL here
+// so the socket client can connect even if the app runs standalone.
+const SOCKET_URL = 'https://api-esquenta-zap.railway.internal';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>('numbers');
@@ -92,7 +95,7 @@ export default function App() {
   }, []);
 
   const refreshNumbers = useCallback(() => {
-    fetch('/api/numbers')
+    fetch('https://api-esquenta-zap.railway.internal/numbers')
       .then((r) => r.json())
       .then((data) => setNumbers(data))
       .catch(() => {});

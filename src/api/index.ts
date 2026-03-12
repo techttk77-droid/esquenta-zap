@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const api = axios.create({ baseURL: '/api' });
+// point directly to the remote backend service instead of proxying
+const api = axios.create({ baseURL: 'https://api-esquenta-zap.railway.internal' });
 
 export default api;
 

@@ -7,11 +7,12 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://localhost:3001',
+        // forward API requests to the real backend service
+        target: 'https://api-esquenta-zap.railway.internal',
         changeOrigin: true,
       },
       '/socket.io': {
-        target: 'http://localhost:3001',
+        target: 'https://api-esquenta-zap.railway.internal',
         ws: true,
         changeOrigin: true,
       },
