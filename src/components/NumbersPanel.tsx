@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { WNumber, Engine, NumberStatus } from '../App';
 import * as api from '../api';
 import styles from './NumbersPanel.module.css';
@@ -41,9 +41,29 @@ export default function NumbersPanel({ numbers, qrMap, onRefresh, setNumbers }: 
   const [newEngine, setNewEngine] = useState<Engine>('wwjs');
   const [testMsg, setTestMsg] = useState<{ id: string; to: string; text: string } | null>(null);
   const [loading, setLoading] = useState<Record<string, boolean>>({});
+  const [waitingQr, setWaitingQr] = useState<Set<string>>(new Set());
+  const qrTimeoutsRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
   const setLoad = (id: string, val: boolean) =>
     setLoading((prev) => ({ ...prev, [id]: val }));
+
+  // Remove da fila de espera quando QR chegar ou status mudar
+  useEffect(() => {
+    setWaitingQr((prev) => {
+      const next = new Set(prev);
+      let changed = false;
+      numbers.forEach((n) => {
+        const status = n.live_status || n.status;
+        if (next.has(n.id) && (qrMap[n.id] || status === 'connected' || status === 'disconnected' || status === 'auth_failure')) {
+          next.delete(n.id);
+          clearTimeout(qrTimeoutsRef.current[n.id]);
+          delete qrTimeoutsRef.current[n.id];
+          changed = true;
+        }
+      });
+      return changed ? next : prev;
+    });
+  }, [qrMap, numbers]);
 
   const handleAdd = async () => {
     if (!newName.trim()) return;
@@ -64,6 +84,12 @@ export default function NumbersPanel({ numbers, qrMap, onRefresh, setNumbers }: 
       console.log(`[Connect] Iniciando conexão para número: ${id}`);
       await api.connectNumber(id);
       console.log(`[Connect] Sucesso para número: ${id}`);
+      // Aguarda QR Code via Socket.IO — limpo após 40s se não chegar
+      setWaitingQr((prev: Set<string>) => new Set(prev).add(id));
+      qrTimeoutsRef.current[id] = setTimeout(() => {
+        setWaitingQr((prev: Set<string>) => { const n = new Set(prev); n.delete(id); return n; });
+        console.warn('[Connect] QR não recebido em 40s para:', id);
+      }, 40000);
     } catch (e: any) {
       console.error('[Connect] Erro completo:', {
         status: e.response?.status,
@@ -73,7 +99,7 @@ export default function NumbersPanel({ numbers, qrMap, onRefresh, setNumbers }: 
       });
       const errorMsg: string = e.response?.data?.message || e.response?.data?.error || e.message || 'Erro desconhecido';
       console.error('[Connect] Dados do erro:', JSON.stringify(e.response?.data));
-      const currentEngine = numbers.find((n) => n.id === id)?.engine;
+      const currentEngine = numbers.find((n: WNumber) => n.id === id)?.engine;
       const isBrowserError =
         (currentEngine === 'wwjs' && e.response?.status === 500) ||
         errorMsg.toLowerCase().includes('executablepath') ||
@@ -330,6 +356,14 @@ export default function NumbersPanel({ numbers, qrMap, onRefresh, setNumbers }: 
                         alt="QR Code"
                         className={styles.qrImage}
                       />
+                    </div>
+                  )}
+
+                  {/* Aguardando QR */}
+                  {!qrMap[num.id] && waitingQr.has(num.id) && (
+                    <div className={styles.qrWaiting}>
+                      <div className={styles.qrSpinner} />
+                      <span>Aguardando QR Code do servidor...</span>
                     </div>
                   )}
 

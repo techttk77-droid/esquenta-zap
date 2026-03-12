@@ -53,15 +53,36 @@ export default function App() {
 
   // Socket.IO setup
   useEffect(() => {
-    const s = io(SOCKET_URL, { transports: ['websocket'] });
+    const s = io(SOCKET_URL, {
+      // Polling primeiro garante compatibilidade com proxies Railway/Nginx;
+      // depois faz upgrade automático para WebSocket se possível.
+      transports: ['polling', 'websocket'],
+      upgrade: true,
+      reconnection: true,
+      reconnectionDelay: 1000,
+      reconnectionAttempts: Infinity,
+    });
     setSocket(s);
 
-    s.on('connect', () => setConnected(true));
-    s.on('disconnect', () => setConnected(false));
+    s.on('connect', () => {
+      console.log('[Socket.IO] Conectado. Transport:', s.io.engine.transport.name);
+      setConnected(true);
+    });
+    s.on('disconnect', (reason: string) => {
+      console.warn('[Socket.IO] Desconectado:', reason);
+      setConnected(false);
+    });
+    s.on('connect_error', (err: Error) => {
+      console.error('[Socket.IO] Erro de conexão:', err.message);
+    });
+    s.io.on('upgrade', (transport: { name: string }) => {
+      console.log('[Socket.IO] Upgrade para:', transport.name);
+    });
 
     s.on('numbers:list', (nums: WNumber[]) => setNumbers(nums));
 
     s.on('number:status', ({ id, status, phone }: any) => {
+      console.log('[Socket.IO] number:status ->', id, status);
       setNumbers((prev) =>
         prev.map((n) =>
           n.id === id
@@ -72,10 +93,12 @@ export default function App() {
     });
 
     s.on('number:qr', ({ id, qr }: any) => {
+      console.log('[Socket.IO] number:qr recebido para:', id);
       setQrMap((prev) => ({ ...prev, [id]: qr }));
     });
 
     s.on('number:qr_clear', ({ id }: any) => {
+      console.log('[Socket.IO] number:qr_clear para:', id);
       setQrMap((prev) => {
         const next = { ...prev };
         delete next[id];
