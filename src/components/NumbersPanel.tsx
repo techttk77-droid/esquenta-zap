@@ -71,10 +71,37 @@ export default function NumbersPanel({ numbers, qrMap, onRefresh, setNumbers }: 
         data: e.response?.data,
         message: e.message,
       });
-      const message = e.response?.data?.message || e.response?.data?.error || e.message || 'Erro desconhecido';
-      alert(`Erro ao conectar: ${message}`);
+      const errorMsg: string = e.response?.data?.message || e.response?.data?.error || e.message || 'Erro desconhecido';
+      const isBrowserError =
+        errorMsg.toLowerCase().includes('executablepath') ||
+        errorMsg.toLowerCase().includes('chromium') ||
+        errorMsg.toLowerCase().includes('browser was not found');
+      if (isBrowserError) {
+        const switchToBaileys = window.confirm(
+          `❌ Chromium não encontrado no servidor.\n\n` +
+          `O engine whatsapp-web.js requer um browser instalado no servidor.\n\n` +
+          `Deseja trocar automaticamente para Baileys (não precisa de browser)?`
+        );
+        if (switchToBaileys) {
+          await handleSwitchEngineSilent(id, 'baileys');
+        }
+      } else {
+        alert(`Erro ao conectar: ${errorMsg}`);
+      }
     } finally {
       setLoad(id, false);
+    }
+  };
+
+  const handleSwitchEngineSilent = async (id: string, engine: Engine) => {
+    try {
+      await api.switchEngine(id, engine);
+      setNumbers((prev: WNumber[]) =>
+        prev.map((n: WNumber) => (n.id === id ? { ...n, engine } : n))
+      );
+      setTimeout(() => handleConnect(id), 500);
+    } catch (e: any) {
+      alert('Erro ao trocar engine: ' + e.message);
     }
   };
 
