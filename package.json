@@ -19,7 +19,8 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "npx tsc && npx vite build",
+    "typecheck": "npx tsc --noEmit",
+    "build": "npx vite build",
     "preview": "vite preview"
   }
 }
