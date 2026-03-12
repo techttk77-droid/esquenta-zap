@@ -72,14 +72,17 @@ export default function NumbersPanel({ numbers, qrMap, onRefresh, setNumbers }: 
         message: e.message,
       });
       const errorMsg: string = e.response?.data?.message || e.response?.data?.error || e.message || 'Erro desconhecido';
+      console.error('[Connect] Dados do erro:', JSON.stringify(e.response?.data));
+      const currentEngine = numbers.find((n) => n.id === id)?.engine;
       const isBrowserError =
+        (currentEngine === 'wwjs' && e.response?.status === 500) ||
         errorMsg.toLowerCase().includes('executablepath') ||
         errorMsg.toLowerCase().includes('chromium') ||
         errorMsg.toLowerCase().includes('browser was not found');
       if (isBrowserError) {
         const switchToBaileys = window.confirm(
-          `❌ Chromium não encontrado no servidor.\n\n` +
-          `O engine whatsapp-web.js requer um browser instalado no servidor.\n\n` +
+          `❌ Falha ao conectar com engine whatsapp-web.js (erro 500 no servidor).\n\n` +
+          `Este engine requer Chromium instalado no servidor, que pode não estar disponível.\n\n` +
           `Deseja trocar automaticamente para Baileys (não precisa de browser)?`
         );
         if (switchToBaileys) {
@@ -101,7 +104,22 @@ export default function NumbersPanel({ numbers, qrMap, onRefresh, setNumbers }: 
       );
       setTimeout(() => handleConnect(id), 500);
     } catch (e: any) {
-      alert('Erro ao trocar engine: ' + e.message);
+      console.error('[SwitchEngine] Erro:', JSON.stringify(e.response?.data));
+      const num = numbers.find((n) => n.id === id);
+      const shouldDelete = window.confirm(
+        `❌ O servidor também falhou ao trocar o engine (erro ${e.response?.status ?? 500}).\n\n` +
+        `Solução: remova o número "${num?.name || id}" e crie um novo já com engine Baileys.\n\n` +
+        `Deseja remover este número agora?`
+      );
+      if (shouldDelete) {
+        try {
+          await api.deleteNumber(id);
+          setNumbers((prev: WNumber[]) => prev.filter((n: WNumber) => n.id !== id));
+          alert('Número removido! Clique em "Adicionar Número" e selecione o engine Baileys.');
+        } catch (deleteErr: any) {
+          alert('Erro ao remover: ' + deleteErr.message);
+        }
+      }
     }
   };
 
@@ -137,17 +155,19 @@ export default function NumbersPanel({ numbers, qrMap, onRefresh, setNumbers }: 
 
   const handleSwitchEngine = async (id: string, currentEngine: Engine) => {
     const next: Engine = currentEngine === 'wwjs' ? 'baileys' : 'wwjs';
-    const confirm = window.confirm(
+    const confirmed = window.confirm(
       `Trocar para ${ENGINE_LABELS[next]}?\n\nIsso irá reconectar o número.`
     );
-    if (!confirm) return;
+    if (!confirmed) return;
     try {
       await api.switchEngine(id, next);
-      setNumbers((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, engine: next } : n))
+      setNumbers((prev: WNumber[]) =>
+        prev.map((n: WNumber) => (n.id === id ? { ...n, engine: next } : n))
       );
+      await handleConnect(id);
     } catch (e: any) {
-      alert('Erro: ' + e.message);
+      const errorMsg = e.response?.data?.message || e.response?.data?.error || e.message;
+      alert(`Erro ao trocar engine: ${errorMsg}`);
     }
   };
 
