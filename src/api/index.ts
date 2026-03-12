@@ -1,7 +1,12 @@
 import axios from 'axios';
 
-// point directly to the remote backend service instead of proxying
-const api = axios.create({ baseURL: 'https://api-esquenta-zap-production.up.railway.app/api' });
+// Use relative paths in production (Vercel proxies to backend)
+// Use absolute URL in development
+const apiBase = import.meta.env.DEV 
+  ? 'https://api-esquenta-zap-production.up.railway.app/api'
+  : '/api';
+
+const api = axios.create({ baseURL: apiBase });
 
 export default api;
 

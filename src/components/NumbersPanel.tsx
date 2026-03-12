@@ -63,7 +63,9 @@ export default function NumbersPanel({ numbers, qrMap, onRefresh, setNumbers }: 
     try {
       await api.connectNumber(id);
     } catch (e: any) {
-      alert('Erro: ' + e.message);
+      console.error('Connect error:', e);
+      const message = e.response?.data?.message || e.message || 'Erro desconhecido';
+      alert('Erro ao conectar: ' + message);
     } finally {
       setLoad(id, false);
     }
