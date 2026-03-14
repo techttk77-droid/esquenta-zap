@@ -8,7 +8,7 @@ interface Task {
   id: string;
   name: string;
   type: string;
-  cron_expression: string;
+  cronExpression: string;
   enabled: number;
   config: Record<string, any>;
   last_run: string | null;
@@ -49,7 +49,7 @@ export default function SchedulerPanel({ numbers }: Props) {
   const [form, setForm] = useState({
     name: '',
     type: 'warm_group',
-    cron_expression: '*/30 * * * *',
+    cronExpression: '*/30 * * * *',
     enabled: 1,
     config: {
       group_id: '',
@@ -174,8 +174,8 @@ export default function SchedulerPanel({ numbers }: Props) {
               <label>Frequência (Cron)</label>
               <select
                 className={styles.select}
-                value={form.cron_expression}
-                onChange={(e) => setForm({ ...form, cron_expression: e.target.value })}
+                value={form.cronExpression}
+                onChange={(e) => setForm({ ...form, cronExpression: e.target.value })}
               >
                 {CRON_PRESETS.map((p) => (
                   <option key={p.value} value={p.value}>{p.label} — {p.value}</option>
@@ -186,9 +186,8 @@ export default function SchedulerPanel({ numbers }: Props) {
               <label>Expressão Cron personalizada</label>
               <input
                 className={styles.input}
-                value={form.cron_expression}
-                onChange={(e) => setForm({ ...form, cron_expression: e.target.value })}
-                placeholder="*/30 * * * *"
+                value={form.cronExpression}
+                onChange={(e) => setForm({ ...form, cronExpression: e.target.value })}
               />
             </div>
           </div>
@@ -289,7 +288,7 @@ export default function SchedulerPanel({ numbers }: Props) {
               <div className={styles.taskLeft}>
                 <div className={styles.taskType}>{TASK_TYPES[task.type] || task.type}</div>
                 <div className={styles.taskName}>{task.name}</div>
-                <div className={styles.taskCron}>🕐 {task.cron_expression}</div>
+                <div className={styles.taskCron}>🕐 {task.cronExpression}</div>
                 {task.last_run && (
                   <div className={styles.taskLastRun}>
                     Última execução: {new Date(task.last_run).toLocaleString('pt-BR')}
