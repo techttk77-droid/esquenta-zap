@@ -8,10 +8,12 @@ interface Task {
   id: string;
   name: string;
   type: string;
-  cronExpression: string;
+  cronExpression?: string;
+  cron_expression?: string;
   enabled: boolean;
   config: Record<string, any>;
-  last_run: string | null;
+  last_run?: string | null;
+  lastRun?: string | null;
 }
 
 interface Group {
@@ -111,10 +113,29 @@ export default function SchedulerPanel({ numbers }: Props) {
     }
   };
 
-  const handleTrigger = async (id: string) => {
-    setTriggering(id);
+  const handleTrigger = async (task: Task) => {
+    const needsGroupTypes = ['warm_group', 'send_audio', 'send_sticker', 'send_reaction'];
+    const cfg = task.config || {};
+    const gid = cfg.group_id || cfg.groupId || '';
+    if (needsGroupTypes.includes(task.type) && !gid) {
+      alert(
+        '⚠️ Esta tarefa não tem grupo configurado (foi criada com erro anterior).\n\n' +
+        'Exclua esta tarefa e crie uma nova selecionando o grupo correto.'
+      );
+      return;
+    }
+    const fid = cfg.from_id || cfg.fromId || '';
+    const tid = cfg.to_id || cfg.toId || '';
+    if (task.type === 'warm_pair' && (!fid || !tid)) {
+      alert(
+        '⚠️ Esta tarefa não tem remetente/destinatário configurado.\n\n' +
+        'Exclua e crie uma nova tarefa.'
+      );
+      return;
+    }
+    setTriggering(task.id);
     try {
-      await api.triggerTask(id);
+      await api.triggerTask(task.id);
       alert('Tarefa executada!');
     } catch (e: any) {
       const msg = e.response?.data?.message || e.response?.data?.error || e.response?.data || e.message || 'Erro desconhecido';
@@ -290,17 +311,17 @@ export default function SchedulerPanel({ numbers }: Props) {
               <div className={styles.taskLeft}>
                 <div className={styles.taskType}>{TASK_TYPES[task.type] || task.type}</div>
                 <div className={styles.taskName}>{task.name}</div>
-                <div className={styles.taskCron}>🕐 {task.cronExpression}</div>
-                {task.last_run && (
+                <div className={styles.taskCron}>🕐 {task.cronExpression || task.cron_expression}</div>
+                {(task.last_run || task.lastRun) && (
                   <div className={styles.taskLastRun}>
-                    Última execução: {new Date(task.last_run).toLocaleString('pt-BR')}
+                    Última execução: {new Date((task.last_run || task.lastRun)!).toLocaleString('pt-BR')}
                   </div>
                 )}
               </div>
               <div className={styles.taskActions}>
                 <button
                   className={styles.btnTrigger}
-                  onClick={() => handleTrigger(task.id)}
+                  onClick={() => handleTrigger(task)}
                   disabled={triggering === task.id}
                   title="Executar agora"
                 >
