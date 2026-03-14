@@ -52,10 +52,10 @@ export default function SchedulerPanel({ numbers }: Props) {
     cronExpression: '*/30 * * * *',
     enabled: true,
     config: {
-      group_id: '',
-      from_id: '',
-      to_id: '',
-      messages_per_cycle: 3,
+      groupId: '',
+      fromId: '',
+      toId: '',
+      messagesPerCycle: 3,
       messages: 2,
     },
   });
@@ -74,11 +74,11 @@ export default function SchedulerPanel({ numbers }: Props) {
       alert('Informe um nome para a tarefa.');
       return;
     }
-    if (needsGroup && !form.config.group_id) {
+    if (needsGroup && !form.config.groupId) {
       alert('Selecione um grupo para esta tarefa.');
       return;
     }
-    if (needsPair && (!form.config.from_id || !form.config.to_id)) {
+    if (needsPair && (!form.config.fromId || !form.config.toId)) {
       alert('Selecione o número remetente e o destinatário.');
       return;
     }
@@ -117,7 +117,9 @@ export default function SchedulerPanel({ numbers }: Props) {
       await api.triggerTask(id);
       alert('Tarefa executada!');
     } catch (e: any) {
-      alert('Erro: ' + e.message);
+      const msg = e.response?.data?.message || e.response?.data?.error || e.response?.data || e.message || 'Erro desconhecido';
+      console.error('[Trigger] Erro completo:', e.response?.data);
+      alert(`Erro ao executar tarefa (${e.response?.status ?? '?'}): ${typeof msg === 'object' ? JSON.stringify(msg) : msg}`);
     } finally {
       setTriggering(null);
     }
@@ -197,9 +199,9 @@ export default function SchedulerPanel({ numbers }: Props) {
               <label>Grupo</label>
               <select
                 className={styles.select}
-                value={form.config.group_id}
+                value={form.config.groupId}
                 onChange={(e) =>
-                  setForm({ ...form, config: { ...form.config, group_id: e.target.value } })
+                  setForm({ ...form, config: { ...form.config, groupId: e.target.value } })
                 }
               >
                 <option value="">Selecione um grupo...</option>
@@ -218,11 +220,11 @@ export default function SchedulerPanel({ numbers }: Props) {
                 className={styles.input}
                 min={1}
                 max={10}
-                value={form.config.messages_per_cycle}
+                value={form.config.messagesPerCycle}
                 onChange={(e) =>
                   setForm({
                     ...form,
-                    config: { ...form.config, messages_per_cycle: parseInt(e.target.value) },
+                    config: { ...form.config, messagesPerCycle: parseInt(e.target.value) },
                   })
                 }
               />
@@ -235,9 +237,9 @@ export default function SchedulerPanel({ numbers }: Props) {
                 <label>Número Remetente</label>
                 <select
                   className={styles.select}
-                  value={form.config.from_id}
+                  value={form.config.fromId}
                   onChange={(e) =>
-                    setForm({ ...form, config: { ...form.config, from_id: e.target.value } })
+                    setForm({ ...form, config: { ...form.config, fromId: e.target.value } })
                   }
                 >
                   <option value="">Selecione...</option>
@@ -250,9 +252,9 @@ export default function SchedulerPanel({ numbers }: Props) {
                 <label>Número Destinatário</label>
                 <select
                   className={styles.select}
-                  value={form.config.to_id}
+                  value={form.config.toId}
                   onChange={(e) =>
-                    setForm({ ...form, config: { ...form.config, to_id: e.target.value } })
+                    setForm({ ...form, config: { ...form.config, toId: e.target.value } })
                   }
                 >
                   <option value="">Selecione...</option>
