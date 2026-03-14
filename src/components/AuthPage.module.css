@@ -43,36 +43,6 @@
   text-shadow: 0 0 8px rgba(88, 166, 255, 0.4);
 }
 
-.tabs {
-  display: flex;
-  gap: 0;
-  margin-bottom: 24px;
-  border-bottom: 1px solid #30363d;
-}
-
-.tab {
-  flex: 1;
-  padding: 10px 0;
-  background: none;
-  border: none;
-  color: #8b949e;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  transition: all 0.15s;
-}
-
-.tab:hover {
-  color: #e6edf3;
-}
-
-.tabActive {
-  color: #25d366;
-  border-bottom-color: #25d366;
-  font-weight: 600;
-}
-
 .form {
   display: flex;
   flex-direction: column;

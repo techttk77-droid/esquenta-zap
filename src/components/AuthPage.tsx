@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { login, register } from '../api';
+import { login } from '../api';
 import styles from './AuthPage.module.css';
 
 interface AuthPageProps {
@@ -7,10 +7,8 @@ interface AuthPageProps {
 }
 
 export default function AuthPage({ onAuth }: AuthPageProps) {
-  const [mode, setMode] = useState<'login' | 'register'>('login');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState('');
@@ -26,20 +24,13 @@ export default function AuthPage({ onAuth }: AuthPageProps) {
     setLoading(true);
 
     try {
-      if (mode === 'register') {
-        await register(username, password, name || undefined);
-        // Após registro, faz login automático
-        const res = await login(username, password);
-        onAuth(res.token, res.user);
-      } else {
-        const res = await login(username, password);
-        if (res.machineChanged) {
-          showToast(
-            '⚠️ Login detectado em nova máquina. Todas as sessões WhatsApp anteriores foram desconectadas por segurança.'
-          );
-        }
-        onAuth(res.token, res.user);
+      const res = await login(username, password);
+      if (res.machineChanged) {
+        showToast(
+          '⚠️ Login detectado em nova máquina. Todas as sessões WhatsApp anteriores foram desconectadas por segurança.'
+        );
       }
+      onAuth(res.token, res.user);
     } catch (err: any) {
       const msg =
         err.response?.data?.error ||
@@ -62,34 +53,7 @@ export default function AuthPage({ onAuth }: AuthPageProps) {
           <span className={styles.brand}>$70L7N T7CN</span>
         </div>
 
-        <div className={styles.tabs}>
-          <button
-            className={`${styles.tab} ${mode === 'login' ? styles.tabActive : ''}`}
-            onClick={() => { setMode('login'); setError(''); }}
-          >
-            Entrar
-          </button>
-          <button
-            className={`${styles.tab} ${mode === 'register' ? styles.tabActive : ''}`}
-            onClick={() => { setMode('register'); setError(''); }}
-          >
-            Criar conta
-          </button>
-        </div>
-
         <form className={styles.form} onSubmit={handleSubmit}>
-          {mode === 'register' && (
-            <div className={styles.field}>
-              <label>Nome (opcional)</label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Seu nome"
-              />
-            </div>
-          )}
-
           <div className={styles.field}>
             <label>Usuário</label>
             <input
@@ -117,11 +81,7 @@ export default function AuthPage({ onAuth }: AuthPageProps) {
           {error && <div className={styles.error}>{error}</div>}
 
           <button type="submit" className={styles.submitBtn} disabled={loading}>
-            {loading
-              ? 'Aguarde...'
-              : mode === 'login'
-              ? 'Entrar'
-              : 'Criar conta'}
+            {loading ? 'Aguarde...' : 'Entrar'}
           </button>
         </form>
       </div>

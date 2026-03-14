@@ -119,3 +119,13 @@ export const uploadImage = (formData: FormData) =>
   api.post('/media/image', formData, { headers: { 'Content-Type': 'multipart/form-data' } }).then((r) => r.data);
 export const uploadVideo = (formData: FormData) =>
   api.post('/media/video', formData, { headers: { 'Content-Type': 'multipart/form-data' } }).then((r) => r.data);
+
+// ─── Admin ───────────────────────────────────────────────────────────────────
+
+export const getAdminUsers = () => api.get('/admin/users').then((r) => r.data);
+export const createAdminUser = (data: { username: string; password: string; role: string; enabled: boolean; modules: string[] }) =>
+  api.post('/admin/users', data).then((r) => r.data);
+export const updateAdminUser = (id: string, data: any) =>
+  api.put(`/admin/users/${id}`, data).then((r) => r.data);
+export const deleteAdminUser = (id: string) =>
+  api.delete(`/admin/users/${id}`).then((r) => r.data);

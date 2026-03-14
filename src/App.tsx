@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
-import { Smartphone, Users, Clock, Settings, BarChart2, Music, Wifi, WifiOff, LogOut } from 'lucide-react';
+import { Smartphone, Users, Clock, Settings, BarChart2, Music, Wifi, WifiOff, LogOut, Shield } from 'lucide-react';
 import NumbersPanel from './components/NumbersPanel';
 import GroupsPanel from './components/GroupsPanel';
 import SchedulerPanel from './components/SchedulerPanel';
 import SettingsPanel from './components/SettingsPanel';
 import MediaPanel from './components/MediaPanel';
 import LogsPanel from './components/LogsPanel';
+import AdminPanel from './components/AdminPanel';
 import AuthPage from './components/AuthPage';
 import { getToken, setToken, clearToken, getMe, logout as apiLogout, setOnUnauthorized, getNumbers as fetchNumbers } from './api';
 import styles from './App.module.css';
@@ -40,7 +41,7 @@ export interface ConversationLog {
   sent_at?: string;
 }
 
-type Tab = 'numbers' | 'groups' | 'scheduler' | 'media' | 'logs' | 'settings';
+type Tab = 'numbers' | 'groups' | 'scheduler' | 'media' | 'logs' | 'settings' | 'admin';
 
 // Em dev: URL relativa → proxy Vite encaminha para Railway sem CORS
 // Em prod (Vercel): URL absoluta direta para Railway
@@ -172,14 +173,23 @@ export default function App() {
       .catch(() => {});
   }, []);
 
-  const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
+  const allTabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
     { key: 'numbers', label: 'Números', icon: <Smartphone size={18} /> },
     { key: 'groups', label: 'Grupos', icon: <Users size={18} /> },
     { key: 'scheduler', label: 'Agendamentos', icon: <Clock size={18} /> },
     { key: 'media', label: 'Mídia', icon: <Music size={18} /> },
     { key: 'logs', label: 'Logs', icon: <BarChart2 size={18} /> },
     { key: 'settings', label: 'Configurações', icon: <Settings size={18} /> },
+    { key: 'admin', label: 'Admin', icon: <Shield size={18} /> },
   ];
+
+  // Filtra tabs por módulos permitidos ao usuário + admin só para admins
+  const userModules: string[] = user?.modules || ['numbers', 'groups', 'scheduler', 'media', 'logs', 'settings'];
+  const isAdmin = user?.role === 'admin';
+  const tabs = allTabs.filter((t) => {
+    if (t.key === 'admin') return isAdmin;
+    return userModules.includes(t.key);
+  });
 
   // ─── If checking auth or not authenticated, show AuthPage ────────────────
   if (authChecking) {
@@ -249,6 +259,7 @@ export default function App() {
           {activeTab === 'media' && <MediaPanel />}
           {activeTab === 'logs' && <LogsPanel logs={logs} />}
           {activeTab === 'settings' && <SettingsPanel numbersCount={numbers.length} />}
+          {activeTab === 'admin' && <AdminPanel />}
         </div>
       </main>
     </div>
