@@ -33,6 +33,14 @@
   color: #25d366;
 }
 
+.brand {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  color: #58a6ff;
+  text-shadow: 0 0 8px rgba(88, 166, 255, 0.4);
+}
+
 .nav {
   flex: 1;
   padding: 12px 0;
@@ -72,6 +80,9 @@
   padding: 16px 20px;
   border-top: 1px solid #30363d;
   font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .connIndicatorOn {
@@ -86,6 +97,25 @@
   align-items: center;
   gap: 6px;
   color: #f85149;
+}
+
+.logoutBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 1px solid #30363d;
+  color: #8b949e;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.logoutBtn:hover {
+  color: #f85149;
+  border-color: #f85149;
 }
 
 /* Main */

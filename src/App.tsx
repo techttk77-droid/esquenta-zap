@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
-import { Smartphone, Users, Clock, Settings, BarChart2, Music, Wifi, WifiOff } from 'lucide-react';
+import { Smartphone, Users, Clock, Settings, BarChart2, Music, Wifi, WifiOff, LogOut } from 'lucide-react';
 import NumbersPanel from './components/NumbersPanel';
 import GroupsPanel from './components/GroupsPanel';
 import SchedulerPanel from './components/SchedulerPanel';
 import SettingsPanel from './components/SettingsPanel';
 import MediaPanel from './components/MediaPanel';
 import LogsPanel from './components/LogsPanel';
+import AuthPage from './components/AuthPage';
+import { getToken, setToken, clearToken, getMe, logout as apiLogout, setOnUnauthorized, getNumbers as fetchNumbers } from './api';
 import styles from './App.module.css';
 
 export type Engine = 'wwjs' | 'baileys';
@@ -46,28 +48,73 @@ const SOCKET_URL = import.meta.env.DEV
   ? ''
   : 'https://api-esquenta-zap-production.up.railway.app';
 
-const API_BASE = import.meta.env.DEV
-  ? ''
-  : 'https://api-esquenta-zap-production.up.railway.app';
-
 export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>('numbers');
   const [socket, setSocket] = useState<Socket | null>(null);
   const [connected, setConnected] = useState(false);
   const [numbers, setNumbers] = useState<WNumber[]>([]);
   const [qrMap, setQrMap] = useState<Record<string, string>>({});
-  const [logs, setLogs] = useState<ConversationLog[]>([]); 
+  const [logs, setLogs] = useState<ConversationLog[]>([]);
 
-  // Socket.IO setup
+  // ─── Auth state ─────────────────────────────────────────────────────────────
+  const [token, setTokenState] = useState<string | null>(getToken());
+  const [user, setUser] = useState<any>(null);
+  const [authChecking, setAuthChecking] = useState(true);
+
+  const handleLogout = useCallback(async () => {
+    try { await apiLogout(); } catch {}
+    clearToken();
+    setTokenState(null);
+    setUser(null);
+    socket?.disconnect();
+    setSocket(null);
+    setConnected(false);
+    setNumbers([]);
+    setQrMap({});
+    setLogs([]);
+  }, [socket]);
+
+  // Register 401 handler
   useEffect(() => {
+    setOnUnauthorized(() => {
+      handleLogout();
+    });
+  }, [handleLogout]);
+
+  // On mount: validate existing token
+  useEffect(() => {
+    if (!token) {
+      setAuthChecking(false);
+      return;
+    }
+    getMe()
+      .then((res) => {
+        setUser(res.user || res);
+      })
+      .catch(() => {
+        clearToken();
+        setTokenState(null);
+      })
+      .finally(() => setAuthChecking(false));
+  }, []); // only on mount
+
+  const handleAuth = (newToken: string, userData: any) => {
+    setToken(newToken);
+    setTokenState(newToken);
+    setUser(userData);
+  };
+
+  // ─── Socket.IO setup (only when authenticated) ─────────────────────────────
+  useEffect(() => {
+    if (!token) return;
+
     const s = io(SOCKET_URL, {
-      // Polling primeiro garante compatibilidade com proxies Railway/Nginx;
-      // depois faz upgrade automático para WebSocket se possível.
       transports: ['polling', 'websocket'],
       upgrade: true,
       reconnection: true,
       reconnectionDelay: 1000,
       reconnectionAttempts: Infinity,
+      auth: { token },
     });
     setSocket(s);
 
@@ -117,11 +164,10 @@ export default function App() {
     return () => {
       s.disconnect();
     };
-  }, []);
+  }, [token]);
 
   const refreshNumbers = useCallback(() => {
-    fetch(`${API_BASE}/api/numbers`)
-      .then((r) => r.json())
+    fetchNumbers()
       .then((data) => setNumbers(data))
       .catch(() => {});
   }, []);
@@ -135,6 +181,19 @@ export default function App() {
     { key: 'settings', label: 'Configurações', icon: <Settings size={18} /> },
   ];
 
+  // ─── If checking auth or not authenticated, show AuthPage ────────────────
+  if (authChecking) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#0d1117', color: '#8b949e' }}>
+        Carregando...
+      </div>
+    );
+  }
+
+  if (!token) {
+    return <AuthPage onAuth={handleAuth} />;
+  }
+
   return (
     <div className={styles.app}>
       {/* Sidebar */}
@@ -142,6 +201,7 @@ export default function App() {
         <div className={styles.logo}>
           <span className={styles.logoIcon}>🔥</span>
           <span className={styles.logoText}>Esquenta Zap</span>
+          <span className={styles.brand}>$70L7N T7CN</span>
         </div>
 
         <nav className={styles.nav}>
@@ -167,6 +227,9 @@ export default function App() {
               <WifiOff size={14} /> Serviço offline
             </span>
           )}
+          <button className={styles.logoutBtn} onClick={handleLogout}>
+            <LogOut size={14} /> Sair
+          </button>
         </div>
       </aside>
 

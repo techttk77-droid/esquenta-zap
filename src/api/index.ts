@@ -8,7 +8,66 @@ const apiBase = import.meta.env.DEV
 
 const api = axios.create({ baseURL: apiBase });
 
+// ─── Machine ID (único por navegador/máquina) ───────────────────────────────
+export function getMachineId(): string {
+  let id = localStorage.getItem('machineId');
+  if (!id) {
+    id = crypto.randomUUID();
+    localStorage.setItem('machineId', id);
+  }
+  return id;
+}
+
+// ─── Token management ───────────────────────────────────────────────────────
+export function getToken(): string | null {
+  return localStorage.getItem('token');
+}
+export function setToken(token: string) {
+  localStorage.setItem('token', token);
+}
+export function clearToken() {
+  localStorage.removeItem('token');
+}
+
+// ─── Axios interceptors ─────────────────────────────────────────────────────
+// Attach Bearer token to every request
+api.interceptors.request.use((config) => {
+  const token = getToken();
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// Global 401 handler — force logout
+let onUnauthorized: (() => void) | null = null;
+export function setOnUnauthorized(cb: () => void) {
+  onUnauthorized = cb;
+}
+api.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    if (err.response?.status === 401 && onUnauthorized) {
+      onUnauthorized();
+    }
+    return Promise.reject(err);
+  }
+);
+
 export default api;
+
+// ─── Auth ────────────────────────────────────────────────────────────────────
+
+export const register = (email: string, password: string, name?: string) =>
+  api.post('/auth/register', { email, password, name }).then((r) => r.data);
+
+export const login = (email: string, password: string) =>
+  api.post('/auth/login', { email, password, machineId: getMachineId() }).then((r) => r.data);
+
+export const getMe = () => api.get('/auth/me').then((r) => r.data);
+
+export const logout = () =>
+  api.post('/auth/logout').then((r) => r.data).catch(() => {});
 
 // ─── Numbers ────────────────────────────────────────────────────────────────
 
