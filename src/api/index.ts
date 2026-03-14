@@ -1,8 +1,10 @@
 import axios from 'axios';
 
-// Always use absolute URL to Railway backend to avoid 405 errors on Vercel
-// Vercel static hosting doesn't have API routes configured
-const apiBase = 'https://api-esquenta-zap-production.up.railway.app/api';
+// Em dev: URL relativa → proxy Vite encaminha para Railway sem CORS
+// Em prod (Vercel): URL absoluta direta para Railway
+const apiBase = import.meta.env.DEV
+  ? '/api'
+  : 'https://api-esquenta-zap-production.up.railway.app/api';
 
 const api = axios.create({ baseURL: apiBase });
 

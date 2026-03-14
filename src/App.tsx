@@ -40,8 +40,15 @@ export interface ConversationLog {
 
 type Tab = 'numbers' | 'groups' | 'scheduler' | 'media' | 'logs' | 'settings';
 
-// Socket.IO client automatically appends /socket.io to the URL
-const SOCKET_URL = 'https://api-esquenta-zap-production.up.railway.app';
+// Em dev: URL relativa → proxy Vite encaminha para Railway sem CORS
+// Em prod (Vercel): URL absoluta direta para Railway
+const SOCKET_URL = import.meta.env.DEV
+  ? ''
+  : 'https://api-esquenta-zap-production.up.railway.app';
+
+const API_BASE = import.meta.env.DEV
+  ? ''
+  : 'https://api-esquenta-zap-production.up.railway.app';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>('numbers');
@@ -113,7 +120,7 @@ export default function App() {
   }, []);
 
   const refreshNumbers = useCallback(() => {
-    fetch('https://api-esquenta-zap-production.up.railway.app/api/numbers')
+    fetch(`${API_BASE}/api/numbers`)
       .then((r) => r.json())
       .then((data) => setNumbers(data))
       .catch(() => {});

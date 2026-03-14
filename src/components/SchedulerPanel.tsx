@@ -61,27 +61,54 @@ export default function SchedulerPanel({ numbers }: Props) {
   });
   const [triggering, setTriggering] = useState<string | null>(null);
 
+  const needsGroup = ['warm_group', 'send_audio', 'send_sticker', 'send_reaction'].includes(form.type);
+  const needsPair = form.type === 'warm_pair';
+
   useEffect(() => {
     api.getTasks().then(setTasks).catch(() => {});
     api.getGroups().then(setGroups).catch(() => {});
   }, []);
 
   const handleCreate = async () => {
-    if (!form.name.trim()) return;
-    const task = await api.createTask({ ...form, config: form.config });
-    setTasks((prev) => [...prev, task]);
-    setShowForm(false);
+    if (!form.name.trim()) {
+      alert('Informe um nome para a tarefa.');
+      return;
+    }
+    if (needsGroup && !form.config.group_id) {
+      alert('Selecione um grupo para esta tarefa.');
+      return;
+    }
+    if (needsPair && (!form.config.from_id || !form.config.to_id)) {
+      alert('Selecione o número remetente e o destinatário.');
+      return;
+    }
+    try {
+      const task = await api.createTask({ ...form, config: form.config });
+      setTasks((prev) => [...prev, task]);
+      setShowForm(false);
+    } catch (e: any) {
+      const msg = e.response?.data?.message || e.response?.data?.error || e.message || 'Erro desconhecido';
+      alert(`Erro ao criar tarefa: ${msg}`);
+    }
   };
 
   const handleDelete = async (id: string) => {
     if (!window.confirm('Remover tarefa?')) return;
-    await api.deleteTask(id);
-    setTasks((prev) => prev.filter((t) => t.id !== id));
+    try {
+      await api.deleteTask(id);
+      setTasks((prev) => prev.filter((t) => t.id !== id));
+    } catch (e: any) {
+      alert('Erro ao remover: ' + (e.response?.data?.message || e.message));
+    }
   };
 
   const handleToggle = async (task: Task) => {
-    const updated = await api.updateTask(task.id, { ...task, enabled: task.enabled ? 0 : 1 });
-    setTasks((prev) => prev.map((t) => (t.id === task.id ? updated : t)));
+    try {
+      const updated = await api.updateTask(task.id, { ...task, enabled: task.enabled ? 0 : 1 });
+      setTasks((prev) => prev.map((t) => (t.id === task.id ? updated : t)));
+    } catch (e: any) {
+      alert('Erro ao atualizar tarefa: ' + (e.response?.data?.message || e.message));
+    }
   };
 
   const handleTrigger = async (id: string) => {
@@ -96,8 +123,8 @@ export default function SchedulerPanel({ numbers }: Props) {
     }
   };
 
-  const needsGroup = ['warm_group', 'send_audio', 'send_sticker', 'send_reaction'].includes(form.type);
-  const needsPair = form.type === 'warm_pair';
+  const needsGroupRender = ['warm_group', 'send_audio', 'send_sticker', 'send_reaction'].includes(form.type);
+  const needsPairRender = form.type === 'warm_pair';
 
   return (
     <div>
@@ -166,7 +193,7 @@ export default function SchedulerPanel({ numbers }: Props) {
             </div>
           </div>
 
-          {needsGroup && (
+          {needsGroupRender && (
             <div className={styles.formGroup}>
               <label>Grupo</label>
               <select
@@ -203,7 +230,7 @@ export default function SchedulerPanel({ numbers }: Props) {
             </div>
           )}
 
-          {needsPair && (
+          {needsPairRender && (
             <div className={styles.formRow}>
               <div className={styles.formGroup}>
                 <label>Número Remetente</label>
