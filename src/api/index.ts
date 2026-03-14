@@ -56,3 +56,7 @@ export const uploadAudio = (formData: FormData) =>
   api.post('/media/audio', formData, { headers: { 'Content-Type': 'multipart/form-data' } }).then((r) => r.data);
 export const uploadSticker = (formData: FormData) =>
   api.post('/media/sticker', formData, { headers: { 'Content-Type': 'multipart/form-data' } }).then((r) => r.data);
+export const uploadImage = (formData: FormData) =>
+  api.post('/media/image', formData, { headers: { 'Content-Type': 'multipart/form-data' } }).then((r) => r.data);
+export const uploadVideo = (formData: FormData) =>
+  api.post('/media/video', formData, { headers: { 'Content-Type': 'multipart/form-data' } }).then((r) => r.data);

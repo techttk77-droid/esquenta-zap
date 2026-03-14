@@ -21,6 +21,12 @@ interface Group {
   name: string;
 }
 
+interface MediaItem {
+  id: string;
+  name: string;
+  type: string;
+}
+
 interface Props {
   numbers: WNumber[];
 }
@@ -31,6 +37,8 @@ const TASK_TYPES: Record<string, string> = {
   send_audio: '🎵 Enviar Áudio',
   send_sticker: '🎭 Enviar Figurinha',
   send_reaction: '❤️ Enviar Reação',
+  send_image: '🖼️ Enviar Imagem',
+  send_video: '📹 Enviar Vídeo',
 };
 
 const CRON_PRESETS = [
@@ -47,6 +55,7 @@ const CRON_PRESETS = [
 export default function SchedulerPanel({ numbers }: Props) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [groups, setGroups] = useState<Group[]>([]);
+  const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({
     name: '',
@@ -59,16 +68,20 @@ export default function SchedulerPanel({ numbers }: Props) {
       toId: '',
       messagesPerCycle: 3,
       messages: 2,
+      imageId: '',
+      videoId: '',
+      caption: '',
     },
   });
   const [triggering, setTriggering] = useState<string | null>(null);
 
-  const needsGroup = ['warm_group', 'send_audio', 'send_sticker', 'send_reaction'].includes(form.type);
+  const needsGroup = ['warm_group', 'send_audio', 'send_sticker', 'send_reaction', 'send_image', 'send_video'].includes(form.type);
   const needsPair = form.type === 'warm_pair';
 
   useEffect(() => {
     api.getTasks().then(setTasks).catch(() => {});
     api.getGroups().then(setGroups).catch(() => {});
+    api.getMedia().then(setMediaItems).catch(() => {});
   }, []);
 
   const handleCreate = async () => {
@@ -90,6 +103,7 @@ export default function SchedulerPanel({ numbers }: Props) {
       setShowForm(false);
     } catch (e: any) {
       const msg = e.response?.data?.message || e.response?.data?.error || e.message || 'Erro desconhecido';
+      console.error('[CreateTask] Erro completo:', e.response?.data);
       alert(`Erro ao criar tarefa: ${msg}`);
     }
   };
@@ -114,7 +128,7 @@ export default function SchedulerPanel({ numbers }: Props) {
   };
 
   const handleTrigger = async (task: Task) => {
-    const needsGroupTypes = ['warm_group', 'send_audio', 'send_sticker', 'send_reaction'];
+    const needsGroupTypes = ['warm_group', 'send_audio', 'send_sticker', 'send_reaction', 'send_image', 'send_video'];
     const cfg = task.config || {};
     const gid = cfg.group_id || cfg.groupId || '';
     if (needsGroupTypes.includes(task.type) && !gid) {
@@ -146,8 +160,10 @@ export default function SchedulerPanel({ numbers }: Props) {
     }
   };
 
-  const needsGroupRender = ['warm_group', 'send_audio', 'send_sticker', 'send_reaction'].includes(form.type);
+  const needsGroupRender = ['warm_group', 'send_audio', 'send_sticker', 'send_reaction', 'send_image', 'send_video'].includes(form.type);
   const needsPairRender = form.type === 'warm_pair';
+  const images = mediaItems.filter((m) => m.type === 'image');
+  const videos = mediaItems.filter((m) => m.type === 'video');
 
   return (
     <div>
@@ -283,6 +299,68 @@ export default function SchedulerPanel({ numbers }: Props) {
                     <option key={n.id} value={n.id}>{n.name || n.phone || n.id}</option>
                   ))}
                 </select>
+              </div>
+            </div>
+          )}
+
+          {form.type === 'send_image' && (
+            <div className={styles.formRow}>
+              <div className={styles.formGroup}>
+                <label>Imagem (opcional — aleatória se vazio)</label>
+                <select
+                  className={styles.select}
+                  value={form.config.imageId}
+                  onChange={(e) =>
+                    setForm({ ...form, config: { ...form.config, imageId: e.target.value } })
+                  }
+                >
+                  <option value="">Aleatória da biblioteca</option>
+                  {images.map((m) => (
+                    <option key={m.id} value={m.id}>{m.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div className={styles.formGroup}>
+                <label>Legenda (opcional)</label>
+                <input
+                  className={styles.input}
+                  value={form.config.caption}
+                  onChange={(e) =>
+                    setForm({ ...form, config: { ...form.config, caption: e.target.value } })
+                  }
+                  placeholder="Texto que acompanha a imagem..."
+                />
+              </div>
+            </div>
+          )}
+
+          {form.type === 'send_video' && (
+            <div className={styles.formRow}>
+              <div className={styles.formGroup}>
+                <label>Vídeo (opcional — aleatório se vazio)</label>
+                <select
+                  className={styles.select}
+                  value={form.config.videoId}
+                  onChange={(e) =>
+                    setForm({ ...form, config: { ...form.config, videoId: e.target.value } })
+                  }
+                >
+                  <option value="">Aleatório da biblioteca</option>
+                  {videos.map((m) => (
+                    <option key={m.id} value={m.id}>{m.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div className={styles.formGroup}>
+                <label>Legenda (opcional)</label>
+                <input
+                  className={styles.input}
+                  value={form.config.caption}
+                  onChange={(e) =>
+                    setForm({ ...form, config: { ...form.config, caption: e.target.value } })
+                  }
+                  placeholder="Texto que acompanha o vídeo..."
+                />
               </div>
             </div>
           )}

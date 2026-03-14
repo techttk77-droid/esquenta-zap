@@ -20,5 +20,7 @@
 .mediaDate { font-size: 12px; color: #8b949e; margin-top: 2px; }
 .audioPlayer { height: 36px; flex: 1; min-width: 200px; }
 .stickerPreview { width: 60px; height: 60px; object-fit: contain; }
+.imagePreview { width: 80px; height: 60px; object-fit: cover; border-radius: 4px; }
+.videoPlayer { width: 160px; height: 60px; border-radius: 4px; }
 .btnDelete { display: flex; align-items: center; background: #21262d; color: #8b949e; border: 1px solid #30363d; border-radius: 6px; padding: 6px 8px; margin-left: auto; }
 .btnDelete:hover { color: #f85149; border-color: #f85149; background: #2d1b1b; }
