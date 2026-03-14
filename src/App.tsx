@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
-import { Smartphone, Users, Clock, Settings, BarChart2, Music, Wifi, WifiOff, LogOut, Shield, Menu, X } from 'lucide-react';
+import { Smartphone, Users, Clock, Settings, BarChart2, Music, Wifi, WifiOff, LogOut, Shield, Menu, X, User } from 'lucide-react';
 import NumbersPanel from './components/NumbersPanel';
 import GroupsPanel from './components/GroupsPanel';
 import SchedulerPanel from './components/SchedulerPanel';
@@ -286,6 +286,12 @@ export default function App() {
         </nav>
 
         <div className={styles.sidebarFooter}>
+          {user && (
+            <div className={styles.userInfo}>
+              <User size={14} />
+              <span>{user.name || user.username}</span>
+            </div>
+          )}
           {connected ? (
             <span className={styles.connIndicatorOn}>
               <Wifi size={14} /> Serviço online
