@@ -9,7 +9,7 @@ interface Task {
   name: string;
   type: string;
   cronExpression: string;
-  enabled: number;
+  enabled: boolean;
   config: Record<string, any>;
   last_run: string | null;
 }
@@ -50,7 +50,7 @@ export default function SchedulerPanel({ numbers }: Props) {
     name: '',
     type: 'warm_group',
     cronExpression: '*/30 * * * *',
-    enabled: 1,
+    enabled: true,
     config: {
       group_id: '',
       from_id: '',
@@ -104,7 +104,7 @@ export default function SchedulerPanel({ numbers }: Props) {
 
   const handleToggle = async (task: Task) => {
     try {
-      const updated = await api.updateTask(task.id, { ...task, enabled: task.enabled ? 0 : 1 });
+      const updated = await api.updateTask(task.id, { ...task, enabled: !task.enabled });
       setTasks((prev) => prev.map((t) => (t.id === task.id ? updated : t)));
     } catch (e: any) {
       alert('Erro ao atualizar tarefa: ' + (e.response?.data?.message || e.message));
