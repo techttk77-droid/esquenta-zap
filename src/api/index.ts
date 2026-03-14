@@ -58,11 +58,11 @@ export default api;
 
 // ─── Auth ────────────────────────────────────────────────────────────────────
 
-export const register = (email: string, password: string, name?: string) =>
-  api.post('/auth/register', { email, password, name }).then((r) => r.data);
+export const register = (username: string, password: string, name?: string) =>
+  api.post('/auth/register', { username, password, name }).then((r) => r.data);
 
-export const login = (email: string, password: string) =>
-  api.post('/auth/login', { email, password, machineId: getMachineId() }).then((r) => r.data);
+export const login = (username: string, password: string) =>
+  api.post('/auth/login', { username, password, machineId: getMachineId() }).then((r) => r.data);
 
 export const getMe = () => api.get('/auth/me').then((r) => r.data);
 

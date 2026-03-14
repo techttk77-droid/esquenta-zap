@@ -8,7 +8,7 @@ interface AuthPageProps {
 
 export default function AuthPage({ onAuth }: AuthPageProps) {
   const [mode, setMode] = useState<'login' | 'register'>('login');
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [error, setError] = useState('');
@@ -27,12 +27,12 @@ export default function AuthPage({ onAuth }: AuthPageProps) {
 
     try {
       if (mode === 'register') {
-        await register(email, password, name || undefined);
+        await register(username, password, name || undefined);
         // Após registro, faz login automático
-        const res = await login(email, password);
+        const res = await login(username, password);
         onAuth(res.token, res.user);
       } else {
-        const res = await login(email, password);
+        const res = await login(username, password);
         if (res.machineChanged) {
           showToast(
             '⚠️ Login detectado em nova máquina. Todas as sessões WhatsApp anteriores foram desconectadas por segurança.'
@@ -91,13 +91,14 @@ export default function AuthPage({ onAuth }: AuthPageProps) {
           )}
 
           <div className={styles.field}>
-            <label>E-mail</label>
+            <label>Usuário</label>
             <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="seu@email.com"
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="seu_usuario"
               required
+              minLength={3}
             />
           </div>
 
