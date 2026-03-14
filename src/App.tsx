@@ -75,9 +75,6 @@ export default function App() {
     s.on('connect_error', (err: Error) => {
       console.error('[Socket.IO] Erro de conexão:', err.message);
     });
-    s.io.on('upgrade', (transport: { name: string }) => {
-      console.log('[Socket.IO] Upgrade para:', transport.name);
-    });
 
     s.on('numbers:list', (nums: WNumber[]) => setNumbers(nums));
 
