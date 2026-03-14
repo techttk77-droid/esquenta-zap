@@ -29,6 +29,17 @@ export function clearToken() {
   localStorage.removeItem('token');
 }
 
+export function getTokenExpiry(): Date | null {
+  const token = getToken();
+  if (!token) return null;
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.exp ? new Date(payload.exp * 1000) : null;
+  } catch {
+    return null;
+  }
+}
+
 // ─── Axios interceptors ─────────────────────────────────────────────────────
 // Attach Bearer token to every request
 api.interceptors.request.use((config) => {

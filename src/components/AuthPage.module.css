@@ -34,13 +34,13 @@
 
 .brand {
   display: block;
-  margin-top: 6px;
-  font-size: 11px;
+  margin-top: 10px;
+  font-size: 14px;
   font-weight: 600;
-  letter-spacing: 3px;
+  letter-spacing: 5px;
   text-transform: uppercase;
   color: #58a6ff;
-  text-shadow: 0 0 8px rgba(88, 166, 255, 0.4);
+  text-shadow: 0 0 12px rgba(88, 166, 255, 0.5);
 }
 
 .form {
@@ -131,5 +131,28 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@media (max-width: 480px) {
+  .card {
+    margin: 16px;
+    padding: 28px 20px 24px;
+    border-radius: 10px;
+  }
+
+  .logoText {
+    font-size: 20px;
+  }
+
+  .brand {
+    font-size: 12px;
+    letter-spacing: 4px;
+  }
+
+  .toast {
+    left: 16px;
+    right: 16px;
+    max-width: none;
   }
 }

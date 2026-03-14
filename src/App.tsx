@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
-import { Smartphone, Users, Clock, Settings, BarChart2, Music, Wifi, WifiOff, LogOut, Shield } from 'lucide-react';
+import { Smartphone, Users, Clock, Settings, BarChart2, Music, Wifi, WifiOff, LogOut, Shield, Menu, X } from 'lucide-react';
 import NumbersPanel from './components/NumbersPanel';
 import GroupsPanel from './components/GroupsPanel';
 import SchedulerPanel from './components/SchedulerPanel';
@@ -9,7 +9,7 @@ import MediaPanel from './components/MediaPanel';
 import LogsPanel from './components/LogsPanel';
 import AdminPanel from './components/AdminPanel';
 import AuthPage from './components/AuthPage';
-import { getToken, setToken, clearToken, getMe, logout as apiLogout, setOnUnauthorized, getNumbers as fetchNumbers } from './api';
+import { getToken, setToken, clearToken, getMe, logout as apiLogout, setOnUnauthorized, getNumbers as fetchNumbers, getTokenExpiry } from './api';
 import styles from './App.module.css';
 
 export type Engine = 'wwjs' | 'baileys';
@@ -61,6 +61,10 @@ export default function App() {
   const [token, setTokenState] = useState<string | null>(getToken());
   const [user, setUser] = useState<any>(null);
   const [authChecking, setAuthChecking] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [expiryStr, setExpiryStr] = useState('');
+  const [expiryWarning, setExpiryWarning] = useState(false);
+  const [loginToast, setLoginToast] = useState('');
 
   const handleLogout = useCallback(async () => {
     try { await apiLogout(); } catch {}
@@ -99,10 +103,53 @@ export default function App() {
       .finally(() => setAuthChecking(false));
   }, []); // only on mount
 
+  // ─── Atualiza contador de expiração ─────────────────────────────────────────
+  useEffect(() => {
+    if (!token) { setExpiryStr(''); return; }
+    const expiry = user?.licenseExpiry
+      ? new Date(user.licenseExpiry)
+      : getTokenExpiry();
+    if (!expiry) { setExpiryStr(''); return; }
+    const update = () => {
+      const diff = expiry.getTime() - Date.now();
+      if (diff <= 0) {
+        setExpiryStr('Expirada');
+        setExpiryWarning(true);
+        return;
+      }
+      const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      setExpiryStr(`${d}d ${h}h ${m}m`);
+      setExpiryWarning(diff < 2 * 24 * 60 * 60 * 1000);
+    };
+    update();
+    const iv = setInterval(update, 60_000);
+    return () => clearInterval(iv);
+  }, [user, token]);
+
   const handleAuth = (newToken: string, userData: any) => {
     setToken(newToken);
     setTokenState(newToken);
     setUser(userData);
+    // Aviso de expiração ao fazer login
+    try {
+      const payload = JSON.parse(atob(newToken.split('.')[1]));
+      const expDate = userData.licenseExpiry
+        ? new Date(userData.licenseExpiry)
+        : payload.exp ? new Date(payload.exp * 1000) : null;
+      if (expDate) {
+        const diff = expDate.getTime() - Date.now();
+        if (diff > 0 && diff < 2 * 24 * 60 * 60 * 1000) {
+          const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+          const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          setLoginToast(
+            `⚠️ Sua licença expira em ${d > 0 ? `${d} dia${d !== 1 ? 's' : ''} e ` : ''}${h} hora${h !== 1 ? 's' : ''}. Renove para continuar usando.`
+          );
+          setTimeout(() => setLoginToast(''), 10000);
+        }
+      }
+    } catch {}
   };
 
   // ─── Socket.IO setup (only when authenticated) ─────────────────────────────
@@ -206,12 +253,23 @@ export default function App() {
 
   return (
     <div className={styles.app}>
+      {/* Toast de expiração */}
+      {loginToast && <div className={styles.loginToast}>{loginToast}</div>}
+
+      {/* Overlay mobile */}
+      {sidebarOpen && <div className={styles.overlay} onClick={() => setSidebarOpen(false)} />}
+
       {/* Sidebar */}
-      <aside className={styles.sidebar}>
+      <aside className={`${styles.sidebar} ${sidebarOpen ? styles.sidebarOpen : ''}`}>
         <div className={styles.logo}>
           <span className={styles.logoIcon}>🔥</span>
-          <span className={styles.logoText}>Esquenta Zap</span>
-          <span className={styles.brand}>$70L7N T7CN</span>
+          <div className={styles.logoWrap}>
+            <span className={styles.logoText}>Esquenta Zap</span>
+            <span className={styles.brand}>$70L7N T7CN</span>
+          </div>
+          <button className={styles.closeBtn} onClick={() => setSidebarOpen(false)}>
+            <X size={18} />
+          </button>
         </div>
 
         <nav className={styles.nav}>
@@ -219,7 +277,7 @@ export default function App() {
             <button
               key={t.key}
               className={`${styles.navItem} ${activeTab === t.key ? styles.navItemActive : ''}`}
-              onClick={() => setActiveTab(t.key)}
+              onClick={() => { setActiveTab(t.key); setSidebarOpen(false); }}
             >
               {t.icon}
               <span>{t.label}</span>
@@ -245,6 +303,16 @@ export default function App() {
 
       {/* Main content */}
       <main className={styles.main}>
+        <div className={styles.topBar}>
+          <button className={styles.menuBtn} onClick={() => setSidebarOpen(true)}>
+            <Menu size={20} />
+          </button>
+          {expiryStr && (
+            <div className={`${styles.expiryInfo} ${expiryWarning ? styles.expiryWarn : ''}`}>
+              {expiryWarning ? '⚠️' : '🕐'} Licença expira em {expiryStr}
+            </div>
+          )}
+        </div>
         <div className={styles.content}>
           {activeTab === 'numbers' && (
             <NumbersPanel
