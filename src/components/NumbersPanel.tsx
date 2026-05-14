@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { WNumber, Engine, NumberStatus } from '../App';
+import { WNumber, NumberStatus } from '../App';
 import * as api from '../api';
 import styles from './NumbersPanel.module.css';
-import { Plus, Trash2, Zap, ZapOff, RefreshCw, Send, ChevronsUpDown } from 'lucide-react';
+import { Plus, Trash2, Zap, ZapOff, RefreshCw, Send } from 'lucide-react';
 
 interface Props {
   numbers: WNumber[];
@@ -29,16 +29,10 @@ const STATUS_LABELS: Record<string, string> = {
   auth_failure: 'Falha de Auth',
 };
 
-const ENGINE_LABELS: Record<string, string> = {
-  wwjs: 'whatsapp-web.js',
-  baileys: 'Baileys',
-};
-
 export default function NumbersPanel({ numbers, qrMap, onRefresh, setNumbers }: Props) {
   const [showAddForm, setShowAddForm] = useState(false);
   const [newName, setNewName] = useState('');
   const [newPhone, setNewPhone] = useState('');
-  const [newEngine, setNewEngine] = useState<Engine>('wwjs');
   const [testMsg, setTestMsg] = useState<{ id: string; to: string; text: string } | null>(null);
   const [loading, setLoading] = useState<Record<string, boolean>>({});
   const [waitingQr, setWaitingQr] = useState<Set<string>>(new Set());
@@ -46,6 +40,16 @@ export default function NumbersPanel({ numbers, qrMap, onRefresh, setNumbers }: 
 
   const setLoad = (id: string, val: boolean) =>
     setLoading((prev) => ({ ...prev, [id]: val }));
+
+  const ensureBaileys = async (id: string) => {
+    const currentEngine = numbers.find((n) => n.id === id)?.engine;
+    if (currentEngine === 'baileys') return;
+
+    await api.ensureBaileysEngine(id);
+    setNumbers((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, engine: 'baileys' } : n))
+    );
+  };
 
   // Remove da fila de espera quando QR chegar ou status mudar
   useEffect(() => {
@@ -68,7 +72,7 @@ export default function NumbersPanel({ numbers, qrMap, onRefresh, setNumbers }: 
   const handleAdd = async () => {
     if (!newName.trim()) return;
     try {
-      const number = await api.createNumber({ name: newName, phone: newPhone, engine: newEngine });
+      const number = await api.createNumber({ name: newName, phone: newPhone, engine: 'baileys' });
       setNumbers((prev) => [...prev, number]);
       setNewName('');
       setNewPhone('');
@@ -82,6 +86,7 @@ export default function NumbersPanel({ numbers, qrMap, onRefresh, setNumbers }: 
     setLoad(id, true);
     try {
       console.log(`[Connect] Iniciando conexão para número: ${id}`);
+      await ensureBaileys(id);
       await api.connectNumber(id);
       console.log(`[Connect] Sucesso para número: ${id}`);
       // Aguarda QR Code via Socket.IO — limpo após 40s se não chegar
@@ -99,53 +104,9 @@ export default function NumbersPanel({ numbers, qrMap, onRefresh, setNumbers }: 
       });
       const errorMsg: string = e.response?.data?.message || e.response?.data?.error || e.message || 'Erro desconhecido';
       console.error('[Connect] Dados do erro:', JSON.stringify(e.response?.data));
-      const currentEngine = numbers.find((n: WNumber) => n.id === id)?.engine;
-      const isBrowserError =
-        (currentEngine === 'wwjs' && e.response?.status === 500) ||
-        errorMsg.toLowerCase().includes('executablepath') ||
-        errorMsg.toLowerCase().includes('chromium') ||
-        errorMsg.toLowerCase().includes('browser was not found');
-      if (isBrowserError) {
-        const switchToBaileys = window.confirm(
-          `❌ Falha ao conectar com engine whatsapp-web.js (erro 500 no servidor).\n\n` +
-          `Este engine requer Chromium instalado no servidor, que pode não estar disponível.\n\n` +
-          `Deseja trocar automaticamente para Baileys (não precisa de browser)?`
-        );
-        if (switchToBaileys) {
-          await handleSwitchEngineSilent(id, 'baileys');
-        }
-      } else {
-        alert(`Erro ao conectar: ${errorMsg}`);
-      }
+      alert(`Erro ao conectar com Baileys: ${errorMsg}`);
     } finally {
       setLoad(id, false);
-    }
-  };
-
-  const handleSwitchEngineSilent = async (id: string, engine: Engine) => {
-    try {
-      await api.switchEngine(id, engine);
-      setNumbers((prev: WNumber[]) =>
-        prev.map((n: WNumber) => (n.id === id ? { ...n, engine } : n))
-      );
-      setTimeout(() => handleConnect(id), 500);
-    } catch (e: any) {
-      console.error('[SwitchEngine] Erro:', JSON.stringify(e.response?.data));
-      const num = numbers.find((n) => n.id === id);
-      const shouldDelete = window.confirm(
-        `❌ O servidor também falhou ao trocar o engine (erro ${e.response?.status ?? 500}).\n\n` +
-        `Solução: remova o número "${num?.name || id}" e crie um novo já com engine Baileys.\n\n` +
-        `Deseja remover este número agora?`
-      );
-      if (shouldDelete) {
-        try {
-          await api.deleteNumber(id);
-          setNumbers((prev: WNumber[]) => prev.filter((n: WNumber) => n.id !== id));
-          alert('Número removido! Clique em "Adicionar Número" e selecione o engine Baileys.');
-        } catch (deleteErr: any) {
-          alert('Erro ao remover: ' + deleteErr.message);
-        }
-      }
     }
   };
 
@@ -176,24 +137,6 @@ export default function NumbersPanel({ numbers, qrMap, onRefresh, setNumbers }: 
       setNumbers((prev) => prev.filter((n) => n.id !== id));
     } catch (e: any) {
       alert('Erro: ' + e.message);
-    }
-  };
-
-  const handleSwitchEngine = async (id: string, currentEngine: Engine) => {
-    const next: Engine = currentEngine === 'wwjs' ? 'baileys' : 'wwjs';
-    const confirmed = window.confirm(
-      `Trocar para ${ENGINE_LABELS[next]}?\n\nIsso irá reconectar o número.`
-    );
-    if (!confirmed) return;
-    try {
-      await api.switchEngine(id, next);
-      setNumbers((prev: WNumber[]) =>
-        prev.map((n: WNumber) => (n.id === id ? { ...n, engine: next } : n))
-      );
-      await handleConnect(id);
-    } catch (e: any) {
-      const errorMsg = e.response?.data?.message || e.response?.data?.error || e.message;
-      alert(`Erro ao trocar engine: ${errorMsg}`);
     }
   };
 
@@ -237,9 +180,8 @@ export default function NumbersPanel({ numbers, qrMap, onRefresh, setNumbers }: 
       {/* Engine info banner */}
       <div className={styles.infoBanner}>
         <span>
-          💡 <strong>Auto-seleção de engine:</strong> até 10 números usa{' '}
-          <strong>whatsapp-web.js</strong> (mais seguro). Acima de 10 recomenda{' '}
-          <strong>Baileys</strong> (mais leve). Você pode trocar por número individualmente.
+          💡 <strong>Engine ativa:</strong> este painel opera somente com <strong>Baileys</strong>.
+          Números antigos são migrados automaticamente antes da conexão.
         </span>
       </div>
 
@@ -265,17 +207,6 @@ export default function NumbersPanel({ numbers, qrMap, onRefresh, setNumbers }: 
                 placeholder="5511999999999"
                 className={styles.input}
               />
-            </div>
-            <div className={styles.formGroup}>
-              <label>Engine</label>
-              <select
-                value={newEngine}
-                onChange={(e) => setNewEngine(e.target.value as Engine)}
-                className={styles.select}
-              >
-                <option value="wwjs">whatsapp-web.js (até ~10 números)</option>
-                <option value="baileys">Baileys (10+ números, mais leve)</option>
-              </select>
             </div>
           </div>
           <div className={styles.formActions}>
@@ -330,21 +261,9 @@ export default function NumbersPanel({ numbers, qrMap, onRefresh, setNumbers }: 
 
                   {/* Engine badge */}
                   <div className={styles.engineRow}>
-                    <span
-                      className={`${styles.engineBadge} ${
-                        num.engine === 'baileys' ? styles.engineBaileys : styles.engineWwjs
-                      }`}
-                    >
-                      {ENGINE_LABELS[num.engine]}
+                    <span className={`${styles.engineBadge} ${styles.engineBaileys}`}>
+                      Baileys
                     </span>
-                    <button
-                      className={styles.switchEngineBtn}
-                      onClick={() => handleSwitchEngine(num.id, num.engine)}
-                      title="Trocar engine"
-                    >
-                      <ChevronsUpDown size={13} />
-                      Trocar
-                    </button>
                   </div>
 
                   {/* QR Code */}

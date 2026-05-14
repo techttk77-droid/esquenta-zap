@@ -4,7 +4,7 @@ import axios from 'axios';
 // Em prod (Vercel): URL absoluta direta para Railway
 const apiBase = import.meta.env.DEV
   ? '/api'
-  : 'https://api-esquenta-zap-production.up.railway.app/api';
+  : 'https://api-aqc-zap.up.railway.app/api';
 
 const api = axios.create({ baseURL: apiBase });
 
@@ -87,8 +87,8 @@ export const createNumber = (data: any) => api.post('/numbers', data).then((r) =
 export const deleteNumber = (id: string) => api.delete(`/numbers/${id}`).then((r) => r.data);
 export const connectNumber = (id: string) => api.post(`/numbers/${id}/connect`).then((r) => r.data);
 export const disconnectNumber = (id: string) => api.post(`/numbers/${id}/disconnect`).then((r) => r.data);
-export const switchEngine = (id: string, engine: string) =>
-  api.post(`/numbers/${id}/switch-engine`, { engine }).then((r) => r.data);
+export const ensureBaileysEngine = (id: string) =>
+  api.post(`/numbers/${id}/switch-engine`, { engine: 'baileys' }).then((r) => r.data);
 export const sendText = (id: string, to: string, text: string) =>
   api.post(`/numbers/${id}/send-text`, { to, text }).then((r) => r.data);
 export const getRecentLogs = (limit = 100) =>
@@ -106,11 +106,46 @@ export const removeMember = (groupId: string, numberId: string) =>
 
 // ─── Scheduler ──────────────────────────────────────────────────────────────
 
+function normalizeSchedulerConfig(config: any = {}) {
+  const next = { ...(config || {}) };
+
+  if (next.groupId && !next.group_id) next.group_id = next.groupId;
+  if (next.fromId && !next.from_id) next.from_id = next.fromId;
+  if (next.toId && !next.to_id) next.to_id = next.toId;
+  if (next.imageId && !next.image_id) next.image_id = next.imageId;
+  if (next.videoId && !next.video_id) next.video_id = next.videoId;
+  if (next.stickerId && !next.sticker_id) next.sticker_id = next.stickerId;
+  if (next.messagesPerCycle && !next.messages_per_cycle) next.messages_per_cycle = next.messagesPerCycle;
+
+  delete next.groupId;
+  delete next.fromId;
+  delete next.toId;
+  delete next.imageId;
+  delete next.videoId;
+  delete next.stickerId;
+  delete next.messagesPerCycle;
+
+  return next;
+}
+
+function normalizeSchedulerPayload(data: any = {}) {
+  const payload = { ...(data || {}) };
+
+  if (payload.cronExpression && !payload.cron_expression) {
+    payload.cron_expression = payload.cronExpression;
+  }
+  delete payload.cronExpression;
+
+  payload.config = normalizeSchedulerConfig(payload.config || {});
+  return payload;
+}
+
 export const getTasks = () => api.get('/scheduler').then((r) => r.data);
-export const createTask = (data: any) => api.post('/scheduler', data).then((r) => r.data);
-export const updateTask = (id: string, data: any) => api.put(`/scheduler/${id}`, data).then((r) => r.data);
+export const createTask = (data: any) => api.post('/scheduler', normalizeSchedulerPayload(data)).then((r) => r.data);
+export const updateTask = (id: string, data: any) => api.put(`/scheduler/${id}`, normalizeSchedulerPayload(data)).then((r) => r.data);
 export const deleteTask = (id: string) => api.delete(`/scheduler/${id}`).then((r) => r.data);
-export const triggerTask = (id: string) => api.post(`/scheduler/${id}/trigger`).then((r) => r.data);
+export const triggerTask = (id: string, data?: any) =>
+  api.post(`/scheduler/${id}/trigger`, data ? normalizeSchedulerPayload(data) : {}).then((r) => r.data);
 
 // ─── Settings ────────────────────────────────────────────────────────────────
 

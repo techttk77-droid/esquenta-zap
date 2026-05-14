@@ -5,7 +5,7 @@ import { Upload, Trash2 } from 'lucide-react';
 
 const BACKEND = import.meta.env.DEV
   ? ''
-  : 'https://api-esquenta-zap-production.up.railway.app';
+  : 'https://api-aqc-zap.up.railway.app';
 
 const UPLOAD_PATHS: Record<string, string> = {
   audio: 'audios',

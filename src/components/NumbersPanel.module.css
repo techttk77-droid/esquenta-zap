@@ -249,33 +249,10 @@
   border-radius: 4px;
 }
 
-.engineWwjs {
-  background: #1f2937;
-  color: #60a5fa;
-  border: 1px solid #1d4ed8;
-}
-
 .engineBaileys {
   background: #1a1f2e;
   color: #a78bfa;
   border: 1px solid #6d28d9;
-}
-
-.switchEngineBtn {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  background: none;
-  border: 1px solid #30363d;
-  color: #8b949e;
-  font-size: 11px;
-  border-radius: 4px;
-  padding: 3px 7px;
-}
-
-.switchEngineBtn:hover {
-  border-color: #8b949e;
-  color: #e6edf3;
 }
 
 /* QR */

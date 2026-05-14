@@ -16,16 +16,13 @@ export default function SettingsPanel({ numbersCount }: Props) {
   }, []);
 
   const handleSave = async () => {
-    await api.updateSettings(settings);
+    await api.updateSettings({ ...settings, default_engine: 'baileys' });
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
 
   const set = (key: string, value: string) =>
     setSettings((prev) => ({ ...prev, [key]: value }));
-
-  const threshold = parseInt(settings.engine_threshold || '10');
-  const autoEngine = numbersCount >= threshold ? 'Baileys' : 'whatsapp-web.js';
 
   return (
     <div>
@@ -38,11 +35,8 @@ export default function SettingsPanel({ numbersCount }: Props) {
       <div className={styles.infoBanner}>
         <Info size={16} />
         <div>
-          <strong>Engine automática atual:</strong> Com {numbersCount} número(s), o sistema usa{' '}
-          <strong style={{ color: numbersCount >= threshold ? '#a78bfa' : '#60a5fa' }}>
-            {autoEngine}
-          </strong>
-          . Configure o limiar abaixo para ajustar essa regra.
+          <strong>Engine ativa:</strong> todos os {numbersCount} número(s) usam <strong style={{ color: '#a78bfa' }}>Baileys</strong>.
+          Este painel mantém somente a configuração suportada atualmente.
         </div>
       </div>
 
@@ -75,40 +69,6 @@ export default function SettingsPanel({ numbersCount }: Props) {
                 min={2000}
               />
               <span className={styles.hint}>{((parseInt(settings.max_delay_ms) || 15000) / 1000).toFixed(1)}s</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Engine */}
-        <div className={styles.section}>
-          <h3 className={styles.sectionTitle}>⚙️ Seleção de Engine</h3>
-          <p className={styles.sectionDesc}>
-            Define o limiar de números para recomendar/trocar para Baileys automaticamente.
-          </p>
-          <div className={styles.row}>
-            <div className={styles.field}>
-              <label>Limiar para sugerir Baileys (nº de números)</label>
-              <input
-                type="number"
-                className={styles.input}
-                value={settings.engine_threshold || '10'}
-                onChange={(e) => set('engine_threshold', e.target.value)}
-                min={1}
-              />
-              <span className={styles.hint}>
-                Até {settings.engine_threshold || 10}: wwjs | Acima: Baileys
-              </span>
-            </div>
-            <div className={styles.field}>
-              <label>Engine padrão para novos números</label>
-              <select
-                className={styles.select}
-                value={settings.default_engine || 'wwjs'}
-                onChange={(e) => set('default_engine', e.target.value)}
-              >
-                <option value="wwjs">whatsapp-web.js (mais seguro, até ~10 números)</option>
-                <option value="baileys">Baileys (mais leve, 10+ números)</option>
-              </select>
             </div>
           </div>
         </div>
@@ -161,7 +121,7 @@ export default function SettingsPanel({ numbersCount }: Props) {
           <li>Misture textos, áudios, figurinhas e reações para parecer humano</li>
           <li>Prefira horários comerciais (8h–22h)</li>
           <li>Salve os contatos no celular antes de iniciar conversas</li>
-          <li>Com 10+ números, prefira Baileys para economizar recursos</li>
+          <li>Baileys é o único engine mantido neste painel</li>
         </ul>
       </div>
     </div>

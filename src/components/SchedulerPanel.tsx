@@ -149,7 +149,10 @@ export default function SchedulerPanel({ numbers }: Props) {
     }
     setTriggering(task.id);
     try {
-      await api.triggerTask(task.id);
+      await api.triggerTask(task.id, {
+        type: task.type,
+        config: task.config,
+      });
       alert('Tarefa executada!');
     } catch (e: any) {
       const msg = e.response?.data?.message || e.response?.data?.error || e.response?.data || e.message || 'Erro desconhecido';

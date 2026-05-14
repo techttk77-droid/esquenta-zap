@@ -12,7 +12,7 @@ import AuthPage from './components/AuthPage';
 import { getToken, setToken, clearToken, getMe, logout as apiLogout, setOnUnauthorized, getNumbers as fetchNumbers, getTokenExpiry } from './api';
 import styles from './App.module.css';
 
-export type Engine = 'wwjs' | 'baileys';
+export type Engine = 'baileys';
 export type NumberStatus =
   | 'disconnected'
   | 'connecting'
@@ -47,7 +47,7 @@ type Tab = 'numbers' | 'groups' | 'scheduler' | 'media' | 'logs' | 'settings' | 
 // Em prod (Vercel): URL absoluta direta para Railway
 const SOCKET_URL = import.meta.env.DEV
   ? ''
-  : 'https://api-esquenta-zap-production.up.railway.app';
+  : 'https://api-aqc-zap.up.railway.app';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>('numbers');
