@@ -196,9 +196,20 @@ function normalizeSchedulerPayload(data: any = {}) {
   return payload;
 }
 
+function normalizeSchedulerPayloadForCreate(data: any = {}) {
+  const payload = normalizeSchedulerPayload(data);
+
+  // Validação: cronExpression é obrigatório apenas para CREATE
+  if (!payload.cronExpression) {
+    throw new Error('cronExpression é obrigatório para criar uma tarefa.');
+  }
+
+  return payload;
+}
+
 export const getTasks = () => api.get('/scheduler').then((r) => r.data);
-export const createTask = (data: any) => api.post('/scheduler', normalizeSchedulerPayload(data)).then((r) => r.data);
-export const updateTask = (id: string, data: any) => api.put(`/scheduler/${id}`, normalizeSchedulerPayload(data)).then((r) => r.data);
+export const createTask = (data: any) => api.post('/scheduler', normalizeSchedulerPayloadForCreate(data)).then((r) => r.data);
+export const updateTask = (id: string, data: any) => api.put(`/scheduler/${id}`, normalizeSchedulerPayloadForCreate(data)).then((r) => r.data);
 export const deleteTask = (id: string) => api.delete(`/scheduler/${id}`).then((r) => r.data);
 export const triggerTask = (id: string, data?: any) =>
   api.post(`/scheduler/${id}/trigger`, data ? normalizeSchedulerPayload(data) : {}).then((r) => r.data);
