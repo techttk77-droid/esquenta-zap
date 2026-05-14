@@ -128,15 +128,71 @@ function normalizeSchedulerConfig(config: any = {}) {
   return next;
 }
 
+function sanitizeSchedulerConfigByType(type: string, config: any = {}) {
+  const cfg = normalizeSchedulerConfig(config || {});
+  const out: Record<string, any> = {};
+
+  const pick = (key: string) => {
+    const value = cfg[key];
+    if (value === undefined || value === null || value === '') return;
+    out[key] = value;
+  };
+
+  const pickPositiveInt = (key: string, fallback?: number) => {
+    const raw = cfg[key];
+    const parsed = Number(raw);
+    if (Number.isInteger(parsed) && parsed > 0) {
+      out[key] = parsed;
+      return;
+    }
+    if (fallback !== undefined) out[key] = fallback;
+  };
+
+  switch (type) {
+    case 'warm_group':
+      pick('group_id');
+      pickPositiveInt('messages_per_cycle', 3);
+      break;
+    case 'warm_pair':
+      pick('from_id');
+      pick('to_id');
+      pickPositiveInt('messages_per_cycle', 3);
+      break;
+    case 'send_audio':
+    case 'send_sticker':
+    case 'send_reaction':
+      pick('group_id');
+      break;
+    case 'send_image':
+      pick('group_id');
+      pick('image_id');
+      pick('caption');
+      break;
+    case 'send_video':
+      pick('group_id');
+      pick('video_id');
+      pick('caption');
+      break;
+    default:
+      return cfg;
+  }
+
+  return out;
+}
+
 function normalizeSchedulerPayload(data: any = {}) {
   const payload = { ...(data || {}) };
 
+  // Compatibilidade: backend Prisma exige `cronExpression`.
+  // Mantemos também `cron_expression` para APIs legadas.
+  if (!payload.cronExpression && payload.cron_expression) {
+    payload.cronExpression = payload.cron_expression;
+  }
   if (payload.cronExpression && !payload.cron_expression) {
     payload.cron_expression = payload.cronExpression;
   }
-  delete payload.cronExpression;
 
-  payload.config = normalizeSchedulerConfig(payload.config || {});
+  payload.config = sanitizeSchedulerConfigByType(payload.type, payload.config || {});
   return payload;
 }
 
