@@ -110,20 +110,19 @@ function normalizeSchedulerConfig(config: any = {}) {
   const next = { ...(config || {}) };
 
   if (next.groupId && !next.group_id) next.group_id = next.groupId;
+  if (next.group_id && !next.groupId) next.groupId = next.group_id;
   if (next.fromId && !next.from_id) next.from_id = next.fromId;
+  if (next.from_id && !next.fromId) next.fromId = next.from_id;
   if (next.toId && !next.to_id) next.to_id = next.toId;
+  if (next.to_id && !next.toId) next.toId = next.to_id;
   if (next.imageId && !next.image_id) next.image_id = next.imageId;
+  if (next.image_id && !next.imageId) next.imageId = next.image_id;
   if (next.videoId && !next.video_id) next.video_id = next.videoId;
+  if (next.video_id && !next.videoId) next.videoId = next.video_id;
   if (next.stickerId && !next.sticker_id) next.sticker_id = next.stickerId;
+  if (next.sticker_id && !next.stickerId) next.stickerId = next.sticker_id;
   if (next.messagesPerCycle && !next.messages_per_cycle) next.messages_per_cycle = next.messagesPerCycle;
-
-  delete next.groupId;
-  delete next.fromId;
-  delete next.toId;
-  delete next.imageId;
-  delete next.videoId;
-  delete next.stickerId;
-  delete next.messagesPerCycle;
+  if (next.messages_per_cycle && !next.messagesPerCycle) next.messagesPerCycle = next.messages_per_cycle;
 
   return next;
 }
@@ -138,6 +137,13 @@ function sanitizeSchedulerConfigByType(type: string, config: any = {}) {
     out[key] = value;
   };
 
+  const pickAliases = (camelKey: string, snakeKey: string) => {
+    const value = cfg[camelKey] ?? cfg[snakeKey];
+    if (value === undefined || value === null || value === '') return;
+    out[camelKey] = value;
+    out[snakeKey] = value;
+  };
+
   const pickPositiveInt = (key: string, fallback?: number) => {
     const raw = cfg[key];
     const parsed = Number(raw);
@@ -150,27 +156,29 @@ function sanitizeSchedulerConfigByType(type: string, config: any = {}) {
 
   switch (type) {
     case 'warm_group':
-      pick('group_id');
+      pickAliases('groupId', 'group_id');
       pickPositiveInt('messages_per_cycle', 3);
+      if (out.messages_per_cycle !== undefined) out.messagesPerCycle = out.messages_per_cycle;
       break;
     case 'warm_pair':
-      pick('from_id');
-      pick('to_id');
+      pickAliases('fromId', 'from_id');
+      pickAliases('toId', 'to_id');
       pickPositiveInt('messages_per_cycle', 3);
+      if (out.messages_per_cycle !== undefined) out.messagesPerCycle = out.messages_per_cycle;
       break;
     case 'send_audio':
     case 'send_sticker':
     case 'send_reaction':
-      pick('group_id');
+      pickAliases('groupId', 'group_id');
       break;
     case 'send_image':
-      pick('group_id');
-      pick('image_id');
+      pickAliases('groupId', 'group_id');
+      pickAliases('imageId', 'image_id');
       pick('caption');
       break;
     case 'send_video':
-      pick('group_id');
-      pick('video_id');
+      pickAliases('groupId', 'group_id');
+      pickAliases('videoId', 'video_id');
       pick('caption');
       break;
     default:
