@@ -192,6 +192,11 @@ function normalizeSchedulerPayload(data: any = {}) {
     payload.cron_expression = payload.cronExpression;
   }
 
+  // Validação: cronExpression é obrigatório
+  if (!payload.cronExpression) {
+    throw new Error('cronExpression é obrigatório para criar uma tarefa.');
+  }
+
   payload.config = sanitizeSchedulerConfigByType(payload.type, payload.config || {});
   return payload;
 }

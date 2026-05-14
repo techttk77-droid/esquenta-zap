@@ -89,6 +89,10 @@ export default function SchedulerPanel({ numbers }: Props) {
       alert('Informe um nome para a tarefa.');
       return;
     }
+    if (!form.cronExpression || !form.cronExpression.trim()) {
+      alert('Informe uma frequência (Cron) válida.');
+      return;
+    }
     if (needsGroup && !form.config.groupId) {
       alert('Selecione um grupo para esta tarefa.');
       return;
@@ -98,9 +102,27 @@ export default function SchedulerPanel({ numbers }: Props) {
       return;
     }
     try {
-      const task = await api.createTask({ ...form, config: form.config });
+      const payload = { ...form, config: form.config };
+      console.log('[CreateTask] Enviando payload:', payload);
+      const task = await api.createTask(payload);
       setTasks((prev) => [...prev, task]);
       setShowForm(false);
+      setForm({
+        name: '',
+        type: 'warm_group',
+        cronExpression: '*/30 * * * *',
+        enabled: true,
+        config: {
+          groupId: '',
+          fromId: '',
+          toId: '',
+          messagesPerCycle: 3,
+          messages: 2,
+          imageId: '',
+          videoId: '',
+          caption: '',
+        },
+      });
     } catch (e: any) {
       const msg = e.response?.data?.message || e.response?.data?.error || e.message || 'Erro desconhecido';
       console.error('[CreateTask] Erro completo:', e.response?.data);
